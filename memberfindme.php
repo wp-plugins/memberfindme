@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 0.1
+Version: 0.2
 Author: SourceFound
 Author URI: http://www.sourcefound.com
 License: GPL2
@@ -26,31 +26,32 @@ License: GPL2
 */
 
 if (is_admin()) {
-  add_action('admin_menu', 'sf_set_mnu');
-  add_action('admin_init', 'sf_set_ini');
+  add_action('admin_menu','sf_admin_menu');
+  add_action('admin_init','sf_admin_init');
 }
 
-add_action('wp_head', 'sf_hdr');
-add_action('wp_enqueue_scripts', 'sf_ini');
-add_shortcode('memberfindme', 'sf_put');
-remove_action('wp_head', 'rel_canonical');
-add_filter('wp_title', 'sf_ttl', 10, 3);
+add_action('wp_head','sf_head');
+add_action('wp_enqueue_scripts','sf_scripts');
+add_shortcode('memberfindme','sf_shortcode');
+remove_action('wp_head','rel_canonical');
+add_filter('wp_title','sf_title',10,3);
+add_action('widgets_init','sf_widgets_init');
 
-function sf_set_mnu() {
-  add_options_page('MemberFindMe Settings', 'MemberFindMe', 'manage_options', 'sf_set_mnu', 'sf_set_out');
+function sf_admin_menu() {
+  add_options_page('MemberFindMe Settings','MemberFindMe','manage_options','sf_admin_menu','sf_admin_form');
 }
 
-function sf_set_ini() {
-  register_setting('sf_set_grp', 'sf_set', 'sf_set_val');
+function sf_admin_init() {
+  register_setting('sf_admin_group','sf_set','sf_admin_validate');
 }
 
-function sf_set_out() {
+function sf_admin_form() {
   if (!current_user_can('manage_options'))  {
     wp_die(__('You do not have sufficient permissions to access this page.'));
   }
   echo '<div class="wrap"><h2>MemberFindMe Settings</h2>'
     .'<form action="options.php" method="post">';
-  settings_fields("sf_set_grp");
+  settings_fields("sf_admin_group");
   $set=get_option('sf_set');
   echo '<table class="form-table">'
     .'<tr valign="top"><th scope="row">MemberFindMe Organization Key</th><td><input type="text" name="sf_set[org]" value="'.(isset($set['org'])&&$set['org']?$set['org']:'').'" /></td></tr>'
@@ -63,7 +64,7 @@ function sf_set_out() {
     .'</form></div>';
 }
 
-function sf_set_val($in) {
+function sf_admin_validate($in) {
   $in['org']=intval($in['org']);
   $in['org']=($in['org']?strval($in['org']):'');
   $in['pay']=trim($in['pay']);
@@ -73,14 +74,14 @@ function sf_set_val($in) {
   return $in;
 }
 
-function sf_ini() {
+function sf_scripts() {
   if (isset($_GET['_escaped_fragment_'])) {
-    wp_register_style('sf-css', 'http://cdn.sourcefound.com/wl/SF.css');
+    wp_register_style('sf-css','http://cdn.sourcefound.com/wl/SF.css');
     wp_enqueue_style('sf-css');
   }
 }
 
-function sf_ttl($ttl,$sep,$loc) {
+function sf_title($ttl,$sep,$loc) {
   global $post;
   if (isset($_GET['_escaped_fragment_'])&&strpos($post->post_content,'[memberfindme')!==false&&preg_match('/^(biz|event)\//',$_GET['_escaped_fragment_'])==1) {
     $set=get_option('sf_set');
@@ -92,7 +93,7 @@ function sf_ttl($ttl,$sep,$loc) {
   }
 }
 
-function sf_hdr() {
+function sf_head() {
   global $post;
   if (isset($_GET['_escaped_fragment_'])&&strpos($post->post_content,'[memberfindme')!==false&&preg_match('/^(biz|event)\//',$_GET['_escaped_fragment_'])==1) {
     $set=get_option('sf_set');
@@ -112,7 +113,7 @@ function sf_hdr() {
   }
 }
 
-function sf_put($opt) {
+function sf_shortcode($opt) {
   $set=get_option('sf_set');
   if (!isset($set['org'])||!$set['org']) {
     $out='<div>MemberFindMe organization key not setup. Please update settings.</div>';
@@ -151,4 +152,109 @@ function sf_put($opt) {
   }
   return isset($out)?$out:'';
 }
+
+class sf_widget_event extends WP_Widget {
+	public function __construct() {
+		parent::__construct('sf_widget_event','MemberFindMe Events',array('description'=>'Upcoming events from your MemberFindMe calendar'));
+	}
+	public function widget($args,$instance ) {
+		extract($args);
+		$title=apply_filters('widget_title',$instance['title']);
+		echo $before_widget;
+		if (!empty($title))
+			echo $before_title.$title.$after_title;
+		$set=get_option('sf_set');
+		$cto=array('http'=>array('method'=>"GET"));
+		$ctx=stream_context_create($cto); 
+		$rsp=@file_get_contents("http://www.sourcefound.com/api?fi=evt&org=".$set['org']."&wee=1&grp=".$instance['grp']."&cnt=".$instance['cnt']."&sdp=".time(),false,$context); 
+		$dat=json_decode($rsp,true);
+		echo '<ul>';
+		foreach ($dat as $x)	
+			echo '<li><a href="https://'.$x['url'].'">'.esc_html($x['ttl']).'</a></li>';
+		echo '</ul>';
+		echo $after_widget;
+	}
+	public function update($new_instance,$old_instance ) {
+		$instance=$old_instance;
+		$instance['title']=strip_tags($new_instance['title']);
+		$instance['grp']=$new_instance['grp']?strval(intval($new_instance['grp'])):'0';
+		$instance['cnt']=$new_instance['cnt']?strval(intval($new_instance['cnt'])):'0';
+		return $instance;
+	}
+	public function form($instance) {
+		$instance=wp_parse_args($instance,array('title'=>'','grp'=>'0','cnt'=>'3'));
+		$title=strip_tags($instance['title']);
+		$grp=intval($instance['grp']);
+		$cnt=intval($instance['cnt']);
+		echo '<p><label for="'.$this->get_field_id('title').'">Title:</label> <input class="widefat" id="'.$this->get_field_id('title').'" name="'.$this->get_field_name('title').'" type="text" value="'.attribute_escape($title).'" /></p>';
+		echo '<p><label for="'.$this->get_field_id('grp').'">Calendar group:</label> <input id="'.$this->get_field_id('grp').'" name="'.$this->get_field_name('grp').'" type="text" value="'.$grp.'" size="3"/></p>';
+		echo '<p><label for="'.$this->get_field_id('cnt').'">Number of events to show:</label> <input id="'.$this->get_field_id('cnt').'" name="'.$this->get_field_name('cnt').'" type="text" value="'.$cnt.'" size="3"/></p>';
+	}
+}
+
+class sf_widget_folder extends WP_Widget {
+	public function __construct() {
+		parent::__construct('sf_widget_folder','MemberFindMe Folder',array('description'=>'Display contacts from your public MemberFindMe folder'));
+	}
+	public function widget($args,$instance ) {
+		extract($args);
+		$title=apply_filters('widget_title',$instance['title']);
+		echo $before_widget;
+		if (!empty($title))
+			echo $before_title.$title.$after_title;
+		$set=get_option('sf_set');
+		$cto=array('http'=>array('method'=>"GET"));
+		$ctx=stream_context_create($cto); 
+		$rsp=@file_get_contents("http://www.sourcefound.com/api?fi=dek&org=".$set['org']."&wem=1&lbl=".urlencode($instance['lbl']),false,$context); 
+		$dat=json_decode($rsp,true);
+		if ($instance['act']=='1') {
+			$fn=str_replace('-','_',$this->id);
+			echo '<ul class="sf_widget_folder_logos" style="list-style:none;margin:0;padding:0;">';
+		} else
+			echo '<ul class="sf_widget_folder_list">';
+		foreach ($dat as $x) {
+			if ($instance['act']=='1')
+				echo '<li style="display:none;background-color:white;text-align:center;height:130px;padding:10px 0;margin:0;table-layout:fixed;width:100%;"><div style="display:table-cell;vertical-align:middle;width:100%;"><a href="//'.esc_attr($x['url']).'" style="display:block;width:100%;font-size:1.5em;"><img src="//d7efyznwb7ft3.cloudfront.net/'.$x['_id'].'_lgl.jpg" alt="'.esc_attr($x['nam']).'" onerror="this.parentNode.innerHTML=this.alt;" style="display:block;margin:0 auto;max-width:90%;max-height:80px;"></a><small class="cnm" style="display:block;padding:10px;">'.esc_html($x['cnm']).'</small></div></li>';
+			else
+				echo '<li><a href="//'.esc_attr($x['url']).'">'.esc_html($x['nam']).'</a><small class="cnm" style="display:block;">'.esc_html($x['cnm']).'</small></li>';
+		}
+		echo '</ul>';
+		if ($instance['act']=='1') {
+			$delay=intval($instance['delay'])*1000;
+			echo '<script>'
+				.$fn.'_animate=function(){var i,j,x;for(x=i=document.getElementById("'.$this->id.'").childNodes[1].firstChild;x&&x.style.display=="none";x=x.nextSibling);j=x&&x.nextSibling?x.nextSibling:i;for(x=i;x;x=x.nextSibling) x.style.display=(x==j?"table":"none");setTimeout('.$fn.'_animate,'.($delay?$delay:10000).');};'
+				.$fn.'_animate();'
+				.'</script>';
+		}
+		echo $after_widget;
+	}
+	public function update($new_instance,$old_instance ) {
+		$instance=$old_instance;
+		$instance['title']=strip_tags($new_instance['title']);
+		$instance['lbl']=trim($new_instance['lbl']);
+		$instance['act']=strval(intval($new_instance['act']));
+		$instance['delay']=strval(intval($new_instance['delay']));
+		return $instance;
+	}
+	public function form($instance) {
+		$instance=wp_parse_args($instance,array('title'=>'','lbl'=>'','act'=>'0','delay'=>'10'));
+		$title=strip_tags($instance['title']);
+		$lbl=$instance['lbl'];
+		$act=$instance['act'];
+		$delay=$instance['delay'];
+		echo '<p><label for="'.$this->get_field_id('title').'">Title:</label> <input class="widefat" id="'.$this->get_field_id('title').'" name="'.$this->get_field_name('title').'" type="text" value="'.attribute_escape($title).'" /></p>';
+		echo '<p><label for="'.$this->get_field_id('lbl').'">Folder name:</label> <input class="widefat" id="'.$this->get_field_id('lbl').'" name="'.$this->get_field_name('lbl').'" type="text" value="'.attribute_escape($lbl).'" /></p>';
+		echo '<p><label for="'.$this->get_field_id('act').'">Display:</label> <select id="'.$this->get_field_id('act').'" name="'.$this->get_field_name('act').'" onchange="this.parentNode.nextSibling.style.display=(this.value==\'1\'?\'\':\'none\');">'
+				.'<option value="0"'.($act=='0'?' selected="selected"':'').'>List</option>'
+				.'<option value="1"'.($act=='1'?' selected="selected"':'').'>Slideshow</option>'
+			.'</select></p>';
+		echo '<p'.($act=='1'?'':' style="display:none;"').'><label for="'.$this->get_field_id('delay').'">Seconds between slides:</label> <input id="'.$this->get_field_id('delay').'" name="'.$this->get_field_name('delay').'" type="text" value="'.$delay.'" size="3"/></p>';
+	}
+}
+
+function sf_widgets_init() {
+	register_widget('sf_widget_event');
+	register_widget('sf_widget_folder');
+}
+
 ?>
