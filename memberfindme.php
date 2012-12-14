@@ -186,7 +186,7 @@ class sf_widget_event extends WP_Widget {
 		$title=strip_tags($instance['title']);
 		$grp=intval($instance['grp']);
 		$cnt=intval($instance['cnt']);
-		echo '<p><label for="'.$this->get_field_id('title').'">Title:</label> <input class="widefat" id="'.$this->get_field_id('title').'" name="'.$this->get_field_name('title').'" type="text" value="'.attribute_escape($title).'" /></p>';
+		echo '<p><label for="'.$this->get_field_id('title').'">Title:</label> <input class="widefat" id="'.$this->get_field_id('title').'" name="'.$this->get_field_name('title').'" type="text" value="'.esc_attr($title).'" /></p>';
 		echo '<p><label for="'.$this->get_field_id('grp').'">Calendar group:</label> <input id="'.$this->get_field_id('grp').'" name="'.$this->get_field_name('grp').'" type="text" value="'.$grp.'" size="3"/></p>';
 		echo '<p><label for="'.$this->get_field_id('cnt').'">Number of events to show:</label> <input id="'.$this->get_field_id('cnt').'" name="'.$this->get_field_name('cnt').'" type="text" value="'.$cnt.'" size="3"/></p>';
 	}
@@ -222,7 +222,7 @@ class sf_widget_folder extends WP_Widget {
 		if ($instance['act']=='1') {
 			$delay=intval($instance['delay'])*1000;
 			echo '<script>'
-				.$fn.'_animate=function(){var i,j,x;for(x=i=document.getElementById("'.$this->id.'").childNodes[1].firstChild;x&&x.style.display=="none";x=x.nextSibling);j=x&&x.nextSibling?x.nextSibling:i;for(x=i;x;x=x.nextSibling) x.style.display=(x==j?"table":"none");setTimeout('.$fn.'_animate,'.($delay?$delay:10000).');};'
+				.$fn.'_animate=function(){var i,j,x;for(x=i=document.getElementById("'.$this->id.'").lastChild.firstChild;x&&x.style.display=="none";x=x.nextSibling);j=x&&x.nextSibling?x.nextSibling:i;for(x=i;x;x=x.nextSibling) x.style.display=(x==j?"table":"none");setTimeout('.$fn.'_animate,'.($delay?$delay:10000).');};'
 				.$fn.'_animate();'
 				.'</script>';
 		}
