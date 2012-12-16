@@ -169,8 +169,10 @@ class sf_widget_event extends WP_Widget {
 		$rsp=@file_get_contents("http://www.sourcefound.com/api?fi=evt&org=".$set['org']."&wee=1&grp=".$instance['grp']."&cnt=".$instance['cnt']."&sdp=".time(),false,$context); 
 		$dat=json_decode($rsp,true);
 		echo '<ul>';
-		foreach ($dat as $x)	
-			echo '<li><a href="https://'.$x['url'].'">'.esc_html($x['ttl']).'</a></li>';
+		foreach ($dat as $x) {
+			if (isset($x['ezp'])&&$x['ezp']&&explode(',',$x['ezp'])[0]==explode(',',$x['szp'])[0]) $x['ezp']=trim(explode(',',$x['ezp'])[1]);
+			echo '<li><a href="https://'.$x['url'].'">'.esc_html($x['ttl']).'</a><div class="event-start">'.$x['szp'].(isset($x['ezp'])&&$x['ezp']?(' -</div><div class="event-end">'.$x['ezp'].'</div>'):'</div>').'</small></li>';
+		}
 		echo '</ul>';
 		echo $after_widget;
 	}
