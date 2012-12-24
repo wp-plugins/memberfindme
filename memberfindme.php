@@ -211,7 +211,7 @@ class sf_widget_folder extends WP_Widget {
 		$dat=json_decode($rsp,true);
 		if ($instance['act']=='1') {
 			$fn=str_replace('-','_',$this->id);
-			echo '<ul class="sf_widget_folder_logos '.(empty($title)?'':' sf_widget_folder_max').'" style="list-style:none;margin:0;padding:0;">';
+			echo '<ul class="sf_widget_folder_logos '.(empty($title)?' sf_widget_folder_max':'').'" style="list-style:none;margin:0;padding:0;">';
 		} else
 			echo '<ul class="sf_widget_folder_list">';
 		foreach ($dat as $x) {
