@@ -201,9 +201,10 @@ class sf_widget_folder extends WP_Widget {
 	public function widget($args,$instance ) {
 		extract($args);
 		$title=apply_filters('widget_title',$instance['title']);
-		if (!empty($title))
-			$before_widget=str_replace('widget_sf_widget_folder','widget_sf_widget_folder widget_no_title',$before_widget);
-		echo $before_widget;
+		if (empty($title))
+			echo str_replace('widget_sf_widget_folder','widget_sf_widget_folder widget_no_title',$before_widget);
+		else
+			echo $before_widget;
 		if (!empty($title))
 			echo $before_title.$title.$after_title;
 		$set=get_option('sf_set');
