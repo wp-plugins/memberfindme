@@ -201,6 +201,8 @@ class sf_widget_folder extends WP_Widget {
 	public function widget($args,$instance ) {
 		extract($args);
 		$title=apply_filters('widget_title',$instance['title']);
+		if (!empty($title))
+			$before_widget=str_replace('widget_sf_widget_folder','widget_sf_widget_folder widget_no_title',$before_widget);
 		echo $before_widget;
 		if (!empty($title))
 			echo $before_title.$title.$after_title;
@@ -211,7 +213,7 @@ class sf_widget_folder extends WP_Widget {
 		$dat=json_decode($rsp,true);
 		if ($instance['act']=='1') {
 			$fn=str_replace('-','_',$this->id);
-			echo '<ul class="sf_widget_folder_logos '.(empty($title)?' sf_widget_folder_max':'').'" style="list-style:none;margin:0;padding:0;">';
+			echo '<ul class="sf_widget_folder_logos" style="list-style:none;margin:0;padding:0;">';
 		} else
 			echo '<ul class="sf_widget_folder_list">';
 		foreach ($dat as $x) {
