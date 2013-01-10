@@ -133,8 +133,7 @@ function sf_shortcode($opt) {
 		.(isset($set['rsp'])&&$set['rsp']?(' data-rsp="'.$set['rsp'].'"'):'')
 		.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
 	    .' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
-	    .'<script src="http://www.sourcefound.com/wl/SF.js"></script>'
-	    .'<script>SF.init();</script>'
+	    .'<script src="//www.sourcefound.com/js/?mfm&ses"></script>'
       .'</div>';
 	}
   } else if (isset($opt['button'])) { 
@@ -170,8 +169,8 @@ class sf_widget_event extends WP_Widget {
 		$dat=json_decode($rsp,true);
 		echo '<ul>';
 		foreach ($dat as $x) {
-			if (isset($x['ezp'])&&$x['ezp']&&explode(',',$x['ezp'])[0]==explode(',',$x['szp'])[0]) $x['ezp']=trim(explode(',',$x['ezp'])[1]);
-			echo '<li><a href="https://'.$x['url'].'">'.esc_html($x['ttl']).'</a><div class="event-start">'.$x['szp'].(isset($x['ezp'])&&$x['ezp']?(' -</div><div class="event-end">'.$x['ezp'].'</div>'):'</div>').'</small></li>';
+			if (isset($x['ezp'])&&$x['ezp']&&explode(',',$x['ezp'])[0]==explode(',',$x['szp'])[0]) $x['ezp']='- '.trim(explode(',',$x['ezp'])[1]);
+			echo '<li><a href="https://'.$x['url'].'">'.esc_html($x['ttl']).'</a><div class="event-start">'.$x['szp'].(isset($x['ezp'])&&$x['ezp']?('</div><div class="event-end">'.$x['ezp'].'</div>'):'</div>').'</small></li>';
 		}
 		echo '</ul>';
 		echo $after_widget;
@@ -201,7 +200,10 @@ class sf_widget_folder extends WP_Widget {
 	public function widget($args,$instance ) {
 		extract($args);
 		$title=apply_filters('widget_title',$instance['title']);
-		echo $before_widget;
+		if (empty($title))
+			echo str_replace('widget_sf_widget_folder','widget_sf_widget_folder widget_no_title',$before_widget);
+		else
+			echo $before_widget;
 		if (!empty($title))
 			echo $before_title.$title.$after_title;
 		$set=get_option('sf_set');
@@ -211,12 +213,12 @@ class sf_widget_folder extends WP_Widget {
 		$dat=json_decode($rsp,true);
 		if ($instance['act']=='1') {
 			$fn=str_replace('-','_',$this->id);
-			echo '<ul class="sf_widget_folder_logos" style="list-style:none;margin:0;padding:0;">';
+			echo '<ul class="sf_widget_folder_logos" style="list-style:none;margin:0;padding:10px;">';
 		} else
 			echo '<ul class="sf_widget_folder_list">';
 		foreach ($dat as $x) {
 			if ($instance['act']=='1')
-				echo '<li style="display:none;background-color:white;text-align:center;height:130px;padding:10px 0;margin:0;table-layout:fixed;width:100%;"><div style="display:table-cell;vertical-align:middle;width:100%;"><a href="//'.esc_attr($x['url']).'" style="display:block;width:100%;font-size:1.5em;"><img src="//d7efyznwb7ft3.cloudfront.net/'.$x['_id'].'_lgl.jpg" alt="'.esc_attr($x['nam']).'" onerror="this.parentNode.innerHTML=this.alt;" style="display:block;margin:0 auto;max-width:90%;max-height:80px;"></a><small class="cnm" style="display:block;padding:10px;">'.esc_html($x['cnm']).'</small></div></li>';
+				echo '<li style="display:none;background-color:white;text-align:center;height:130px;padding:0;margin:0;table-layout:fixed;width:100%;"><div style="display:table-cell;vertical-align:middle;width:100%;"><a href="//'.esc_attr($x['url']).'" style="display:block;width:100%;font-size:1.5em;"><img src="//d7efyznwb7ft3.cloudfront.net/'.$x['_id'].'_lgl.jpg" alt="'.esc_attr($x['nam']).'" onerror="this.parentNode.innerHTML=this.alt;" style="display:block;margin:0 auto;max-width:100%;max-height:80px;"></a><small class="cnm" style="display:block;padding:10px;">'.esc_html($x['cnm']).'</small></div></li>';
 			else
 				echo '<li><a href="//'.esc_attr($x['url']).'">'.esc_html($x['nam']).'</a><small class="cnm" style="display:block;">'.esc_html($x['cnm']).'</small></li>';
 		}
@@ -224,7 +226,8 @@ class sf_widget_folder extends WP_Widget {
 		if ($instance['act']=='1') {
 			$delay=intval($instance['delay'])*1000;
 			echo '<script>'
-				.$fn.'_animate=function(){var i,j,x;for(x=i=document.getElementById("'.$this->id.'").lastChild.previousSibling.firstChild;x&&x.style.display=="none";x=x.nextSibling);j=x&&x.nextSibling?x.nextSibling:i;for(x=i;x;x=x.nextSibling) x.style.display=(x==j?"table":"none");setTimeout('.$fn.'_animate,'.($delay?$delay:10000).');};'
+				.$fn.'_animate=function(){var r=document.getElementById("'.$this->id.'").lastChild.previousSibling,x=r.querySelector(\'li[style*="table;"]\');if (x) {x.style.display="none";x=(x.nextSibling?x.nextSibling:r.firstChild);} else x=r.childNodes[Math.round(Math.random()*r.childNodes.length)];x.style.display="table";setTimeout('.$fn.'_animate,'.($delay?$delay:10000).');};'
+				//.$fn.'_animate=function(){var i,j,x;for(x=i=document.getElementById("'.$this->id.'").lastChild.previousSibling.firstChild;x&&x.style.display=="none";x=x.nextSibling);j=x&&x.nextSibling?x.nextSibling:i;for(x=i;x;x=x.nextSibling) x.style.display=(x==j?"table":"none");setTimeout('.$fn.'_animate,'.($delay?$delay:10000).');};'
 				.$fn.'_animate();'
 				.'</script>';
 		}
