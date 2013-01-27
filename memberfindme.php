@@ -54,11 +54,11 @@ function sf_admin_form() {
   settings_fields("sf_admin_group");
   $set=get_option('sf_set');
   echo '<table class="form-table">'
-    .'<tr valign="top"><th scope="row">MemberFindMe Organization Key</th><td><input type="text" name="sf_set[org]" value="'.(isset($set['org'])&&$set['org']?$set['org']:'').'" /></td></tr>'
-    .'<tr valign="top"><th scope="row">Stripe Public Key</th><td><input type="text" name="sf_set[pay]" value="'.(isset($set['pay'])&&$set['pay']?$set['pay']:'').'" style="width:300px;" /></td></tr>'
-    .'<tr valign="top"><th scope="row">Facebook API Key</th><td><input type="text" name="sf_set[fbk]" value="'.(isset($set['fbk'])&&$set['fbk']?$set['fbk']:'').'" /></td></tr>'
+    .'<tr valign="top"><th scope="row">MemberFindMe Organization Key</th><td><input type="text" name="sf_set[org]" value="'.(isset($set['org'])?$set['org']:'').'" /></td></tr>'
+    .'<tr valign="top"><th scope="row">Stripe Public Key</th><td><input type="text" name="sf_set[pay]" value="'.(isset($set['pay'])?$set['pay']:'').'" style="width:300px;" /></td></tr>'
+    .'<tr valign="top"><th scope="row">Facebook API Key</th><td><input type="text" name="sf_set[fbk]" value="'.(isset($set['fbk'])?$set['fbk']:'').'" /></td></tr>'
 	.'<tr valign="top"><th scope="row">Customize Search Button Text</th><td><input type="text" name="sf_set[fnd]" value="'.(isset($set['fnd'])&&$set['fnd']?$set['fnd']:'Search').'" /></td></tr>'
-	.'<tr valign="top"><th scope="row">Customize Group Email Button Text</th><td><input type="text" name="sf_set[rsp]" value="'.(isset($set['rsp'])&&$set['rsp']?$set['rsp']:'Request Quotes').'" /></td></tr>'
+	.'<tr valign="top"><th scope="row">Customize Group Email Button Text</th><td><input type="text" name="sf_set[rsp]" value="'.(isset($set['rsp'])?$set['rsp']:'Request Quotes').'" /></td></tr>'
     .'</table>'
 	.'<p class="submit"><input type="submit" name="submit" id="submit" class="button-primary" value="Save Changes"></p>'
     .'</form></div>';
@@ -126,6 +126,7 @@ function sf_shortcode($opt) {
 	    .$rsp.'</div>';
 	} else {
       $out='<div id="SFctr" class="SF" data-ini="'.$opt['open'].'"'
+		.(strpos($opt['open'],'account')===0?'':(' data-hme="'.$opt['open'].'"'))
         .(isset($set['org'])&&$set['org']?(' data-org="'.$set['org'].'"'):'')
 	    .(isset($set['pay'])&&$set['pay']?(' data-pay="'.$set['pay'].'"'):'')
 	    .(isset($set['fbk'])&&$set['fbk']?(' data-fbk="'.$set['fbk'].'"'):'')
@@ -133,7 +134,7 @@ function sf_shortcode($opt) {
 		.(isset($set['rsp'])&&$set['rsp']?(' data-rsp="'.$set['rsp'].'"'):'')
 		.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
 	    .' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
-	    .'<script src="//www.sourcefound.com/js/?mfm&ses"></script>'
+	    .'<script src="//www.sourcefound.com/js/?mfm&ses" defer></script>'
       .'</div>';
 	}
   } else if (isset($opt['button'])) { 
@@ -218,14 +219,14 @@ class sf_widget_folder extends WP_Widget {
 			echo '<ul class="sf_widget_folder_list">';
 		foreach ($dat as $x) {
 			if ($instance['act']=='1')
-				echo '<li style="display:none;background-color:white;text-align:center;height:130px;padding:0;margin:0;table-layout:fixed;width:100%;"><div style="display:table-cell;vertical-align:middle;width:100%;"><a href="//'.esc_attr($x['url']).'" style="display:block;width:100%;font-size:1.5em;">'
+				echo '<li style="display:none;background-color:white;text-align:center;height:130px;padding:0;margin:0;table-layout:fixed;width:100%;"><a href="//'.esc_attr($x['url']).'" style="display:table-cell;vertical-align:middle;width:100%;text-decoration:none;"><div style="display:block;width:100%;font-size:1.5em;">'
 					.($x['lgo']?('<img src="//d7efyznwb7ft3.cloudfront.net/'.$x['_id'].'_lgl.jpg" alt="'.esc_attr($x['nam']).'" onerror="this.parentNode.innerHTML=this.alt;" style="display:block;margin:0 auto;max-width:100%;max-height:80px;">'):esc_html($x['nam']))
-					.'</a><small class="cnm" style="display:block;padding:10px;">'.esc_html($x['cnm']).'</small></div></li>';
+					.'</div><small class="cnm" style="display:block;padding:10px;">'.esc_html($x['cnm']).'</small></a></li>';
 			else
 				echo '<li><a href="//'.esc_attr($x['url']).'">'.esc_html($x['nam']).'</a><small class="cnm" style="display:block;">'.esc_html($x['cnm']).'</small></li>';
 		}
 		echo '</ul>';
-		if ($instance['act']=='1') {
+		if ($instance['act']=='1'&&isset($x)&&$x) {
 			$delay=intval($instance['delay'])*1000;
 			echo '<script>'
 				.$fn.'_animate=function(){var r=document.getElementById("'.$this->id.'").lastChild.previousSibling,x=r.querySelector(\'li[style*="table;"]\');if (x) {x.style.display="none";x=(x.nextSibling?x.nextSibling:r.firstChild);} else x=r.childNodes[Math.round(Math.random()*r.childNodes.length)];x.style.display="table";setTimeout('.$fn.'_animate,'.($delay?$delay:10000).');};'
