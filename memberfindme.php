@@ -34,7 +34,7 @@ add_action('wp_head','sf_head');
 add_action('wp_enqueue_scripts','sf_scripts');
 add_shortcode('memberfindme','sf_shortcode');
 remove_action('wp_head','rel_canonical');
-add_filter('wp_title','sf_title',10,3);
+add_filter('wp_title','sf_title',20,3);
 add_action('widgets_init','sf_widgets_init');
 
 function sf_admin_menu() {
@@ -93,7 +93,7 @@ function sf_admin_page() {
 		case 'account': 	$ini='account/manage'; $hme='account'; break;
 		default:			$ini='dashboard'; $hme='dashboard'; break;
 	}
-	echo '<div id="SFctr" class="SF" data-org="10000" data-hme="'.$hme.'" data-ini="'.$ini.'" data-fnd="Search" data-pay="pk_live_3ixzpECcoHTeuFycsM6zR8Us" style="padding:40px 20px 20px;"></div>'
+	echo '<div id="SFctr" class="SF" data-org="10000" data-hme="'.$hme.'" data-ini="'.$ini.'" data-fnd="Search" data-pay="pk_live_3ixzpECcoHTeuFycsM6zR8Us" style="position:relative;padding:40px 20px 20px;"></div>'
 		.'<script type="text/javascript" src="//www.sourcefound.com/js/?all&ses"></script>';
 }
 
@@ -105,15 +105,16 @@ function sf_scripts() {
 }
 
 function sf_title($ttl,$sep,$loc) {
-	global $post;
+	global $post,$sf_hdr;
 	if (isset($_GET['_escaped_fragment_'])&&strpos($post->post_content,'[memberfindme')!==false&&preg_match('/^(biz|event)\//',$_GET['_escaped_fragment_'])==1) {
 		$set=get_option('sf_set');
 		$cto=array('http'=>array('method'=>"GET"));
 		$ctx=stream_context_create($cto); 
-		$out=@file_get_contents("http://www.sourcefound.com/api?hdr=1&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_']),false,$context); 
-		$out=json_decode($out,true);
-		return ($loc=='left'?" $sep ":' ').$out['ttl'].($loc=='right'?" $sep ":' ');
-	}
+		$rsp=@file_get_contents("http://www.sourcefound.com/api?hdr=1&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_']),false,$context); 
+		$dat=json_decode($rsp,true);
+		return ($loc=='left'?($ttl." $sep "):'').$dat['ttl'].($loc=='right'?(" $sep ".$ttl):'');
+	} else
+		return $ttl;
 }
 
 function sf_head() {
