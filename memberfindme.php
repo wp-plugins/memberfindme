@@ -158,7 +158,7 @@ function sf_shortcode($opt) {
 					.(isset($set['rsp'])&&$set['rsp']?(' data-rsp="'.$set['rsp'].'"'):'')
 					.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
 					.' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
-				.'<script src="//www.sourcefound.com/js/?mfm&ses" defer></script>'
+				.'<script src="//www.sourcefound.com/js/?mfm&ses" defer="defer"></script>'
 				.'</div>';
 		}
 	} else if (isset($opt['button'])) { 
