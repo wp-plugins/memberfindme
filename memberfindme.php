@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 0.2
+Version: 0.5
 Author: SourceFound
 Author URI: http://www.sourcefound.com
 License: GPL2
@@ -94,7 +94,7 @@ function sf_admin_page() {
 		default:			$ini='dashboard'; $hme='dashboard'; break;
 	}
 	echo '<div id="SFctr" class="SF" data-org="10000" data-hme="'.$hme.'" data-ini="'.$ini.'" data-fnd="Search" data-pay="pk_live_3ixzpECcoHTeuFycsM6zR8Us" style="position:relative;padding:40px 20px 20px;"></div>'
-		.'<script type="text/javascript" src="//www.sourcefound.com/js/?all&ses"></script>';
+		.'<script type="text/javascript" src="//www.sourcefound.com/js/?all&ses" defer="defer"></script>';
 }
 
 function sf_scripts() {
@@ -102,6 +102,7 @@ function sf_scripts() {
 		wp_register_style('sf-css','http://cdn.sourcefound.com/wl/SF.css');
 		wp_enqueue_style('sf-css');
 	}
+	wp_register_script('sf-mfm','//www.sourcefound.com/js/?mfm&ses',array(),null);
 }
 
 function sf_title($ttl,$sep,$loc) {
@@ -158,16 +159,17 @@ function sf_shortcode($opt) {
 					.(isset($set['rsp'])&&$set['rsp']?(' data-rsp="'.$set['rsp'].'"'):'')
 					.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
 					.' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
-				.'<script src="//www.sourcefound.com/js/?mfm&ses" defer="defer"></script>'
+					.'<div class="SFpne">Loading...</div>'
 				.'</div>';
+			wp_enqueue_script('sf-mfm');
 		}
 	} else if (isset($opt['button'])) { 
 		$out=(isset($opt['type'])?('<'.$opt['type']):'<button')
 			.(isset($opt['type'])&&$opt['type']=='img'&&isset($opt['src'])?(' src="'.$opt['src'].'"'):'')
 			.(isset($opt['class'])?(' class="'.$opt['class'].'"'):'')
 			.(isset($opt['style'])?(' style="'.$opt['style'].'"'):' style="cursor:pointer;"')
-			.($opt['button']=='account'?(' onmouseout="SF.usr.account(event,this);" onmouseover="SF.usr.account(event,this);" onclick="SF.usr.account(event,this);">'.(isset($opt['text'])?$opt['text']:'My Account')):'')
-			.($opt['button']=='join'?(' onclick="SF.open(\'account/join\');">'.(isset($opt['text'])?$opt['text']:'Join')):'')
+			.($opt['button']=='account'?(' onmouseout="if (SF) SF.usr.account(event,this);" onmouseover="if (SF) SF.usr.account(event,this);" onclick="if (SF) SF.usr.account(event,this);">'.(isset($opt['text'])?$opt['text']:'My Account')):'')
+			.($opt['button']=='join'?(' onclick="if (SF) SF.open(\'account/join\');">'.(isset($opt['text'])?$opt['text']:'Join')):'')
 			.(isset($opt['type'])?($opt['type']=='img'?'':('</'.$opt['type'].'>')):'</button>');
 	}
 	return isset($out)?$out:'';
