@@ -148,7 +148,7 @@ function sf_shortcode($opt) {
 			$ctx=stream_context_create($cto); 
 			$rsp=@file_get_contents("http://www.sourcefound.com/api?org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_']?$_GET['_escaped_fragment_']:substr($opt['open'],1)),false,$context); 
 			$out='<div id="SFctr" class="SF" style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
-				.$rsp.'</div>';
+				.'<div id="SFpne" style="position:relative;">'.$rsp.'</div><div style="clear:both;"></div></div>';
 		} else {
 			$out='<div id="SFctr" class="SF" data-ini="'.$opt['open'].'"'
 					.(strpos($opt['open'],'account')===0?'':(' data-hme="'.$opt['open'].'"'))
@@ -159,7 +159,8 @@ function sf_shortcode($opt) {
 					.(isset($set['rsp'])&&$set['rsp']?(' data-rsp="'.$set['rsp'].'"'):'')
 					.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
 					.' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
-					.'<div class="SFpne">Loading...</div>'
+					.'<div id="SFpne" style="position:relative;"><div class="SFpne">Loading...</div></div>'
+					.'<div style="clear:both;"></div>'
 				.'</div>';
 			wp_enqueue_script('sf-mfm');
 		}
