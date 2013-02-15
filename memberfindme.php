@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 0.5
+Version: 0.6
 Author: SourceFound
 Author URI: http://www.sourcefound.com
 License: GPL2
@@ -193,7 +193,9 @@ class sf_widget_event extends WP_Widget {
 		$dat=json_decode($rsp,true);
 		echo '<ul>';
 		foreach ($dat as $x) {
-			if (isset($x['ezp'])&&$x['ezp']&&explode(',',$x['ezp'])[0]==explode(',',$x['szp'])[0]) $x['ezp']='- '.trim(explode(',',$x['ezp'])[1]);
+			$te=explode(',',$x['ezp']);
+			$ts=explode(',',$x['szp']);
+			if (isset($x['ezp'])&&$x['ezp']&&$te[0]==$ts[0]) $x['ezp']='- '.trim($te[1]);
 			echo '<li><a href="https://'.$x['url'].'">'.esc_html($x['ttl']).'</a><div class="event-start">'.$x['szp'].(isset($x['ezp'])&&$x['ezp']?('</div><div class="event-end">'.$x['ezp'].'</div>'):'</div>').'</small></li>';
 		}
 		echo '</ul>';
