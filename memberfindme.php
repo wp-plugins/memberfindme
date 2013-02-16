@@ -99,7 +99,7 @@ function sf_admin_page() {
 
 function sf_scripts() {
 	if (isset($_GET['_escaped_fragment_'])) {
-		wp_register_style('sf-css','http://cdn.sourcefound.com/wl/SF.css');
+		wp_register_style('sf-css','//cdn.sourcefound.com/wl/SF.css');
 		wp_enqueue_style('sf-css');
 	}
 	wp_register_script('sf-mfm','//www.sourcefound.com/js/?mfm&ses',array(),null);
@@ -244,7 +244,7 @@ class sf_widget_folder extends WP_Widget {
 			echo '<ul class="sf_widget_folder_list">';
 		foreach ($dat as $x) {
 			if ($instance['act']=='1')
-				echo '<li style="display:none;background-color:white;text-align:center;height:130px;padding:0;margin:0;table-layout:fixed;width:100%;"><a href="//'.esc_attr($x['url']).'" style="display:table-cell;vertical-align:middle;width:100%;text-decoration:none;"><div style="display:block;width:100%;font-size:1.5em;">'
+				echo '<li style="display:none;background-color:white;text-align:center;height:130px;padding:0;margin:0;table-layout:fixed;width:100%;"><a href="'.esc_attr($x['url']).'" style="display:table-cell;vertical-align:middle;width:100%;text-decoration:none;"><div style="display:block;width:100%;font-size:1.5em;">'
 					.($x['lgo']?('<img src="//d7efyznwb7ft3.cloudfront.net/'.$x['_id'].'_lgl.jpg" alt="'.esc_attr($x['nam']).'" onerror="this.parentNode.innerHTML=this.alt;" style="display:block;margin:0 auto;max-width:100%;max-height:80px;">'):esc_html($x['nam']))
 					.'</div><small class="cnm" style="display:block;padding:10px;">'.esc_html($x['cnm']).'</small></a></li>';
 			else
