@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 0.6
+Version: 0.7
 Author: SourceFound
 Author URI: http://www.sourcefound.com
 License: GPL2
@@ -196,7 +196,7 @@ class sf_widget_event extends WP_Widget {
 			$te=explode(',',$x['ezp']);
 			$ts=explode(',',$x['szp']);
 			if (isset($x['ezp'])&&$x['ezp']&&$te[0]==$ts[0]) $x['ezp']='- '.trim($te[1]);
-			echo '<li><a href="https://'.$x['url'].'">'.esc_html($x['ttl']).'</a><div class="event-start">'.$x['szp'].(isset($x['ezp'])&&$x['ezp']?('</div><div class="event-end">'.$x['ezp'].'</div>'):'</div>').'</small></li>';
+			echo '<li><a href="'.$x['url'].'">'.esc_html($x['ttl']).'</a><div class="event-start">'.$x['szp'].(isset($x['ezp'])&&$x['ezp']?('</div><div class="event-end">'.$x['ezp'].'</div>'):'</div>').'</small></li>';
 		}
 		echo '</ul>';
 		echo $after_widget;
@@ -248,7 +248,7 @@ class sf_widget_folder extends WP_Widget {
 					.($x['lgo']?('<img src="//d7efyznwb7ft3.cloudfront.net/'.$x['_id'].'_lgl.jpg" alt="'.esc_attr($x['nam']).'" onerror="this.parentNode.innerHTML=this.alt;" style="display:block;margin:0 auto;max-width:100%;max-height:80px;">'):esc_html($x['nam']))
 					.'</div><small class="cnm" style="display:block;padding:10px;">'.esc_html($x['cnm']).'</small></a></li>';
 			else
-				echo '<li><a href="//'.esc_attr($x['url']).'">'.esc_html($x['nam']).'</a><small class="cnm" style="display:block;">'.esc_html($x['cnm']).'</small></li>';
+				echo '<li><a href="'.esc_attr($x['url']).'">'.esc_html($x['nam']).'</a><small class="cnm" style="display:block;">'.esc_html($x['cnm']).'</small></li>';
 		}
 		echo '</ul>';
 		if ($instance['act']=='1'&&isset($x)&&$x) {
