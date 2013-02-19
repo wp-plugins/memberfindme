@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 0.7
+Version: 0.8
 Author: SourceFound
 Author URI: http://www.sourcefound.com
 License: GPL2
@@ -120,7 +120,7 @@ function sf_title($ttl,$sep,$loc) {
 
 function sf_head() {
 	global $post;
-	if (isset($_GET['_escaped_fragment_'])&&strpos($post->post_content,'[memberfindme')!==false&&preg_match('/^(biz|event)\//',$_GET['_escaped_fragment_'])==1) {
+	if (isset($_GET['_escaped_fragment_'])&&strpos($post->post_content,'[memberfindme')!==false) {
 		$set=get_option('sf_set');
 		$cto=array('http'=>array('method'=>"GET"));
 		$ctx=stream_context_create($cto); 
@@ -134,6 +134,8 @@ function sf_head() {
 		if (isset($dat['img'])) $out.="<meta property='og:image' content='".$dat['img']."' />\r\n";
 		$out.="<meta property='og:site_name' content='".get_bloginfo('name')."' />\r\n";
 		if (isset($dat['rel'])) $out.="<link rel='canonical' href='".$dat['rel']."'/>\r\n";
+		if (isset($dat['nxt'])) $out.="<link rel='next' href='".$dat['nxt']."'/>\r\n";
+		if (isset($dat['prv'])) $out.="<link rel='prev' href='".$dat['prv']."'/>\r\n";
 		echo $out;
 	}
 }
