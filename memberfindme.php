@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 0.8
+Version: 0.9
 Author: SourceFound
 Author URI: http://www.sourcefound.com
 License: GPL2
@@ -26,8 +26,8 @@ License: GPL2
 */
 
 if (is_admin()) {
-  add_action('admin_menu','sf_admin_menu');
-  add_action('admin_init','sf_admin_init');
+	add_action('admin_menu','sf_admin_menu');
+	add_action('admin_init','sf_admin_init');
 }
 
 add_action('wp_head','sf_head');
@@ -65,6 +65,7 @@ function sf_admin_options() {
 		.'<tr valign="top"><th scope="row">MemberFindMe Organization Key</th><td><input type="text" name="sf_set[org]" value="'.(isset($set['org'])?$set['org']:'').'" /></td></tr>'
 		.'<tr valign="top"><th scope="row">Stripe Public Key</th><td><input type="text" name="sf_set[pay]" value="'.(isset($set['pay'])?$set['pay']:'').'" style="width:300px;" /></td></tr>'
 		.'<tr valign="top"><th scope="row">Facebook API Key</th><td><input type="text" name="sf_set[fbk]" value="'.(isset($set['fbk'])?$set['fbk']:'').'" /></td></tr>'
+		.'<tr valign="top"><th scope="row">Google Maps API Key</th><td><input type="text" name="sf_set[map]" value="'.(isset($set['map'])?$set['map']:'').'" /></td></tr>'
 		.'<tr valign="top"><th scope="row">Customize Search Button Text</th><td><input type="text" name="sf_set[fnd]" value="'.(isset($set['fnd'])&&$set['fnd']?$set['fnd']:'Search').'" /></td></tr>'
 		.'<tr valign="top"><th scope="row">Customize Group Email Button Text</th><td><input type="text" name="sf_set[rsp]" value="'.(isset($set['rsp'])?$set['rsp']:'Request Quotes').'" /></td></tr>'
 		.'</table>'
@@ -77,6 +78,7 @@ function sf_admin_validate($in) {
 	$in['org']=($in['org']?strval($in['org']):'');
 	$in['pay']=trim($in['pay']);
 	$in['fbk']=trim($in['fbk']);
+	$in['map']=trim($in['map']);
 	$in['fnd']=trim($in['fnd']);
 	$in['rsp']=trim($in['rsp']);
 	return $in;
@@ -93,11 +95,12 @@ function sf_admin_page() {
 		case 'account': 	$ini='account/manage'; $hme='account'; break;
 		default:			$ini='dashboard'; $hme='dashboard'; break;
 	}
-	echo '<div id="SFctr" class="SF" data-org="10000" data-hme="'.$hme.'" data-ini="'.$ini.'" data-fnd="Search" data-pay="pk_live_3ixzpECcoHTeuFycsM6zR8Us" style="position:relative;padding:40px 20px 20px;"></div>'
+	echo '<div id="SFctr" class="SF" data-org="10000" data-hme="'.$hme.'" data-ini="'.$ini.'" data-fnd="Search" data-pay="pk_live_3ixzpECcoHTeuFycsM6zR8Us" data-typ="org" style="position:relative;padding:40px 20px 20px;"></div>'
 		.'<script type="text/javascript" src="//www.sourcefound.com/js/?all&ses" defer="defer"></script>';
 }
 
 function sf_scripts() {
+	$set=get_option('sf_set');
 	if (isset($_GET['_escaped_fragment_'])) {
 		wp_register_style('sf-css','//cdn.sourcefound.com/wl/SF.css');
 		wp_enqueue_style('sf-css');
@@ -107,11 +110,9 @@ function sf_scripts() {
 
 function sf_title($ttl,$sep,$loc) {
 	global $post,$sf_hdr;
-	if (isset($_GET['_escaped_fragment_'])&&strpos($post->post_content,'[memberfindme')!==false&&preg_match('/^(biz|event)\//',$_GET['_escaped_fragment_'])==1) {
+	if (isset($_GET['_escaped_fragment_'])&&strpos($post->post_content,'[memberfindme')!==false) {
 		$set=get_option('sf_set');
-		$cto=array('http'=>array('method'=>"GET"));
-		$ctx=stream_context_create($cto); 
-		$rsp=@file_get_contents("http://www.sourcefound.com/api?hdr=1&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_']),false,$context); 
+		$rsp=@file_get_contents("http://www.sourcefound.com/api?hdr=1&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_'])); 
 		$dat=json_decode($rsp,true);
 		return ($loc=='left'?($ttl." $sep "):'').$dat['ttl'].($loc=='right'?(" $sep ".$ttl):'');
 	} else
@@ -122,9 +123,7 @@ function sf_head() {
 	global $post;
 	if (isset($_GET['_escaped_fragment_'])&&strpos($post->post_content,'[memberfindme')!==false) {
 		$set=get_option('sf_set');
-		$cto=array('http'=>array('method'=>"GET"));
-		$ctx=stream_context_create($cto); 
-		$rsp=@file_get_contents("http://www.sourcefound.com/api?hdr=1&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_']),false,$context); 
+		$rsp=@file_get_contents("http://www.sourcefound.com/api?hdr=1&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_'])); 
 		$dat=json_decode($rsp,true);
 		$out='';
 		if (isset($dat['sum'])) $out.="<meta name='description' content='".$dat['sum']."'>\r\n";
@@ -146,9 +145,7 @@ function sf_shortcode($opt) {
 		$out='<div>MemberFindMe organization key not setup. Please update settings.</div>';
 	} else if (isset($opt['open'])) {
 		if (isset($_GET['_escaped_fragment_'])||(preg_match("/googlebot|slurp|msnbot|facebook/i",$_SERVER['HTTP_USER_AGENT'])>0)) {
-			$cto=array('http'=>array('method'=>"GET"));
-			$ctx=stream_context_create($cto); 
-			$rsp=@file_get_contents("http://www.sourcefound.com/api?org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_']?$_GET['_escaped_fragment_']:substr($opt['open'],1)),false,$context); 
+			$rsp=@file_get_contents("http://www.sourcefound.com/api?org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_']?$_GET['_escaped_fragment_']:substr($opt['open'],1))); 
 			$out='<div id="SFctr" class="SF" style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
 				.'<div id="SFpne" style="position:relative;">'.$rsp.'</div><div style="clear:both;"></div></div>';
 		} else {
@@ -189,9 +186,7 @@ class sf_widget_event extends WP_Widget {
 		if (!empty($title))
 			echo $before_title.$title.$after_title;
 		$set=get_option('sf_set');
-		$cto=array('http'=>array('method'=>"GET"));
-		$ctx=stream_context_create($cto); 
-		$rsp=@file_get_contents("http://www.sourcefound.com/api?fi=evt&org=".$set['org']."&wee=1&grp=".$instance['grp']."&cnt=".$instance['cnt']."&sdp=".time(),false,$context); 
+		$rsp=@file_get_contents("http://www.sourcefound.com/api?fi=evt&org=".$set['org']."&wee=1&grp=".$instance['grp']."&cnt=".$instance['cnt']."&sdp=".time()); 
 		$dat=json_decode($rsp,true);
 		echo '<ul>';
 		foreach ($dat as $x) {
@@ -235,9 +230,7 @@ class sf_widget_folder extends WP_Widget {
 		if (!empty($title))
 			echo $before_title.$title.$after_title;
 		$set=get_option('sf_set');
-		$cto=array('http'=>array('method'=>"GET"));
-		$ctx=stream_context_create($cto); 
-		$rsp=@file_get_contents("http://www.sourcefound.com/api?fi=dek&org=".$set['org']."&wem=1&lbl=".urlencode($instance['lbl']),false,$context); 
+		$rsp=@file_get_contents("http://www.sourcefound.com/api?fi=dek&org=".$set['org']."&wem=1&lbl=".urlencode($instance['lbl'])); 
 		$dat=json_decode($rsp,true);
 		if ($instance['act']=='1') {
 			$fn=str_replace('-','_',$this->id);
