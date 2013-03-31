@@ -3,13 +3,13 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 0.9
+Version: 1.0
 Author: SourceFound
 Author URI: http://www.sourcefound.com
 License: GPL2
 */
 
-/*  Copyright 2012  SOURCEFOUND INC.  (email : info@sourcefound.com)
+/*  Copyright 2013  SOURCEFOUND INC.  (email : info@sourcefound.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License, version 2, as 
@@ -40,10 +40,10 @@ add_action('widgets_init','sf_widgets_init');
 function sf_admin_menu() {
 	add_options_page('MemberFindMe Settings','MemberFindMe','manage_options','sf_admin_options','sf_admin_options');
 	add_menu_page('MemberFindMe Admin','MemberFindMe','add_users','sf_admin_page','sf_admin_page','','2.1');
-	add_submenu_page('sf_admin_page','Dashboard','Dashboard','add_users','sf_admin_page','sf_admin_page');
+	add_submenu_page('sf_admin_page','Dashboard','Dashboard','add_users','sf_admin_dashboard','sf_admin_page');
 	add_submenu_page('sf_admin_page','Members','Members','add_users','sf_admin_members','sf_admin_page');
 	add_submenu_page('sf_admin_page','Folders','Folders','add_users','sf_admin_folders','sf_admin_page');
-	add_submenu_page('sf_admin_page','Event List','Event List','add_users','sf_admin_events','sf_admin_page');
+	add_submenu_page('sf_admin_page','Event List','Event List','add_users','sf_admin_event-list','sf_admin_page');
 	add_submenu_page('sf_admin_page','Event Calendar','Event Calendar','add_users','sf_admin_calendar','sf_admin_page');
 	add_submenu_page('sf_admin_page','Help','Help','add_users','sf_admin_help','sf_admin_page');
 	add_submenu_page('sf_admin_page','Account','Account','add_users','sf_admin_account','sf_admin_page');
@@ -86,6 +86,7 @@ function sf_admin_validate($in) {
 
 function sf_admin_page() {
 	global $plugin_page;
+	$set=get_option('sf_set');
 	switch (substr($plugin_page,9)) {
 		case 'members':		$ini='folder/Members'; $hme='folder/Members'; break;
 		case 'folders':		$ini='folders'; $hme='folders'; break;
@@ -95,8 +96,11 @@ function sf_admin_page() {
 		case 'account': 	$ini='account/manage'; $hme='account'; break;
 		default:			$ini='dashboard'; $hme='dashboard'; break;
 	}
-	echo '<div id="SFctr" class="SF" data-org="10000" data-hme="'.$hme.'" data-ini="'.$ini.'" data-fnd="Search" data-pay="pk_live_3ixzpECcoHTeuFycsM6zR8Us" data-typ="org" style="position:relative;padding:40px 20px 20px;"></div>'
-		.'<script type="text/javascript" src="//www.sourcefound.com/js/?all&ses" defer="defer"></script>';
+	echo '<div id="SFctr" class="SF" data-org="10000" data-hme="'.$hme.'" data-ini="'.$ini.'" data-fnd="Search" data-pay="pk_live_3ixzpECcoHTeuFycsM6zR8Us" data-typ="org"'
+		.(isset($set['fbk'])&&$set['fbk']?(' data-fbk="'.$set['fbk'].'"'):'')
+		.' style="position:relative;padding:30px 20px 20px;"></div>'
+		.'<script type="text/javascript" src="//www.sourcefound.com/js/?all&ini"></script>'
+		.'<script>if (document.getElementById("toplevel_page_sf_admin_page")){SF.foreach(document.getElementById("toplevel_page_sf_admin_page").querySelectorAll("a"),function(n){var x=n.href.split("sf_admin_")[1];if (x=="members") n.href="#folder/Members"; else n.href=(x=="dashboard"||x=="account"||x=="folders"?"#":"#!")+x;n.onclick=function(){SF.foreach(document.getElementById("toplevel_page_sf_admin_page").querySelectorAll(".current"),function(a){a.className="";});this.parentNode.className+="current";};});}</script>';
 }
 
 function sf_scripts() {
@@ -105,7 +109,8 @@ function sf_scripts() {
 		wp_register_style('sf-css','//cdn.sourcefound.com/wl/SF.css');
 		wp_enqueue_style('sf-css');
 	}
-	wp_register_script('sf-mfm','//www.sourcefound.com/js/?mfm&ses',array(),null);
+	wp_register_script('sf-mfm','//www.sourcefound.com/js/?mfm&ini',array(),null);
+	wp_register_script('sf-mfn','//www.sourcefound.com/js/?mfm',array(),null);
 }
 
 function sf_title($ttl,$sep,$loc) {
@@ -158,10 +163,10 @@ function sf_shortcode($opt) {
 					.(isset($set['rsp'])&&$set['rsp']?(' data-rsp="'.$set['rsp'].'"'):'')
 					.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
 					.' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
-					.'<div id="SFpne" style="position:relative;"><div class="SFpne">Loading...</div></div>'
+					.'<div id="SFpne" style="position:relative;"><div class="SFpne">'.(isset($opt['ini'])&&$opt['ini']=='0'?'':'Loading...').'</div></div>'
 					.'<div style="clear:both;"></div>'
 				.'</div>';
-			wp_enqueue_script('sf-mfm');
+			wp_enqueue_script(isset($opt['ini'])&&$opt['ini']=='0'?'sf-mfn':'sf-mfm');
 		}
 	} else if (isset($opt['button'])) { 
 		$out=(isset($opt['type'])?('<'.$opt['type']):'<button')
@@ -171,6 +176,14 @@ function sf_shortcode($opt) {
 			.($opt['button']=='account'?(' onmouseout="if (SF) SF.usr.account(event,this);" onmouseover="if (SF) SF.usr.account(event,this);" onclick="if (SF) SF.usr.account(event,this);">'.(isset($opt['text'])?$opt['text']:'My Account')):'')
 			.($opt['button']=='join'?(' onclick="if (SF) SF.open(\'account/join\');">'.(isset($opt['text'])?$opt['text']:'Join')):'')
 			.(isset($opt['type'])?($opt['type']=='img'?'':('</'.$opt['type'].'>')):'</button>');
+	} else if (isset($opt['join'])) {
+		$out=(isset($opt['type'])?('<'.$opt['type']):'<a')
+			.(isset($opt['type'])&&$opt['type']=='img'&&isset($opt['src'])?(' src="'.$opt['src'].'"'):'')
+			.(isset($opt['class'])?(' class="'.$opt['class'].'"'):'')
+			.(isset($opt['style'])?(' style="'.$opt['style'].'"'):' style="cursor:pointer;"')
+			.(isset($opt['type'])&&$opt['type']!='a'?(' onclick="SF.init();SF.open(\'account/join/'.$opt['join'].'">'):(' onclick="SF.init();" href="#account/join/'.$opt['join'].'">'))
+			.(isset($opt['text'])?$opt['text']:'Join')
+			.(isset($opt['type'])?($opt['type']=='img'?'':('</'.$opt['type'].'>')):'</a>');
 	}
 	return isset($out)?$out:'';
 }

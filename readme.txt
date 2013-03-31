@@ -3,8 +3,8 @@ Contributors: sourcefound
 Donate link: http://memberfind.me
 Tags: memberfindme, sourcefound, event calendar, event registration, member directory, membership management
 Requires at least: 3.0.1
-Tested up to: 3.5
-Stable tag: 0.9
+Tested up to: 3.5.1
+Stable tag: 1.0
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
