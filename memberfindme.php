@@ -3,9 +3,9 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.0
+Version: 1.1
 Author: SourceFound
-Author URI: http://www.sourcefound.com
+Author URI: http://memberfind.me
 License: GPL2
 */
 
@@ -90,7 +90,7 @@ function sf_admin_page() {
 	switch (substr($plugin_page,9)) {
 		case 'members':		$ini='folder/Members'; $hme='folder/Members'; break;
 		case 'folders':		$ini='folders'; $hme='folders'; break;
-		case 'events':		$ini='!event-list'; $hme='!event-list'; break;
+		case 'event-list':	$ini='!event-list'; $hme='!event-list'; break;
 		case 'calendar':	$ini='!calendar'; $hme='!calendar'; break;
 		case 'help':		$ini='!help'; $hme='!help'; break;
 		case 'account': 	$ini='account/manage'; $hme='account'; break;
@@ -104,7 +104,6 @@ function sf_admin_page() {
 }
 
 function sf_scripts() {
-	$set=get_option('sf_set');
 	if (isset($_GET['_escaped_fragment_'])) {
 		wp_register_style('sf-css','//cdn.sourcefound.com/wl/SF.css');
 		wp_enqueue_style('sf-css');
@@ -115,7 +114,7 @@ function sf_scripts() {
 
 function sf_title($ttl,$sep,$loc) {
 	global $post,$sf_hdr;
-	if (isset($_GET['_escaped_fragment_'])&&strpos($post->post_content,'[memberfindme')!==false) {
+	if (isset($_GET['_escaped_fragment_'])&&preg_match('/[^\[]\[memberfindme/',$post->post_content)) {
 		$set=get_option('sf_set');
 		$rsp=@file_get_contents("http://www.sourcefound.com/api?hdr=1&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_'])); 
 		$dat=json_decode($rsp,true);
@@ -126,7 +125,7 @@ function sf_title($ttl,$sep,$loc) {
 
 function sf_head() {
 	global $post;
-	if (isset($_GET['_escaped_fragment_'])&&strpos($post->post_content,'[memberfindme')!==false) {
+	if (isset($_GET['_escaped_fragment_'])&&preg_match('/[^\[]\[memberfindme/',$post->post_content)) {
 		$set=get_option('sf_set');
 		$rsp=@file_get_contents("http://www.sourcefound.com/api?hdr=1&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_'])); 
 		$dat=json_decode($rsp,true);

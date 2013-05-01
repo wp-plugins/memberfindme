@@ -4,7 +4,7 @@ Donate link: http://memberfind.me
 Tags: memberfindme, sourcefound, event calendar, event registration, member directory, membership management
 Requires at least: 3.0.1
 Tested up to: 3.5.1
-Stable tag: 1.0
+Stable tag: 1.1
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -84,3 +84,6 @@ This plugin requires a MemberFindMe subscription. Please visit [MemberFindMe](ht
 
 = 0.1 =
 * Initial release
+
+= 1.0 =
+* Stable release
