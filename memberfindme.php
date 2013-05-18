@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.1
+Version: 1.2
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -25,22 +25,9 @@ License: GPL2
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-if (is_admin()) {
-	add_action('admin_menu','sf_admin_menu');
-	add_action('admin_init','sf_admin_init');
-}
-
-add_action('wp_head','sf_head');
-add_action('wp_enqueue_scripts','sf_scripts');
-add_shortcode('memberfindme','sf_shortcode');
-remove_action('wp_head','rel_canonical');
-add_filter('wp_title','sf_title',20,3);
-add_action('widgets_init','sf_widgets_init');
-
 function sf_admin_menu() {
 	add_options_page('MemberFindMe Settings','MemberFindMe','manage_options','sf_admin_options','sf_admin_options');
 	add_menu_page('MemberFindMe Admin','MemberFindMe','add_users','sf_admin_page','sf_admin_page','','2.1');
-	add_submenu_page('sf_admin_page','Dashboard','Dashboard','add_users','sf_admin_dashboard','sf_admin_page');
 	add_submenu_page('sf_admin_page','Members','Members','add_users','sf_admin_members','sf_admin_page');
 	add_submenu_page('sf_admin_page','Folders','Folders','add_users','sf_admin_folders','sf_admin_page');
 	add_submenu_page('sf_admin_page','Event List','Event List','add_users','sf_admin_event-list','sf_admin_page');
@@ -51,6 +38,11 @@ function sf_admin_menu() {
 
 function sf_admin_init() {
 	register_setting('sf_admin_group','sf_set','sf_admin_validate');
+}
+
+if (is_admin()) {
+	add_action('admin_menu','sf_admin_menu');
+	add_action('admin_init','sf_admin_init');
 }
 
 function sf_admin_options() {
@@ -100,7 +92,13 @@ function sf_admin_page() {
 		.(isset($set['fbk'])&&$set['fbk']?(' data-fbk="'.$set['fbk'].'"'):'')
 		.' style="position:relative;padding:30px 20px 20px;"></div>'
 		.'<script type="text/javascript" src="//www.sourcefound.com/js/?all&ini"></script>'
-		.'<script>if (document.getElementById("toplevel_page_sf_admin_page")){SF.foreach(document.getElementById("toplevel_page_sf_admin_page").querySelectorAll("a"),function(n){var x=n.href.split("sf_admin_")[1];if (x=="members") n.href="#folder/Members"; else n.href=(x=="dashboard"||x=="account"||x=="folders"?"#":"#!")+x;n.onclick=function(){SF.foreach(document.getElementById("toplevel_page_sf_admin_page").querySelectorAll(".current"),function(a){a.className="";});this.parentNode.className+="current";};});}</script>';
+		.'<script>function sf_admin(){'
+			.'var t=document.getElementById("toplevel_page_sf_admin_page");'
+			.'if (!t) return;'
+			.'t.querySelector(".wp-first-item a").innerHTML="Dashboard";'
+			.'var a=t.querySelectorAll("a"),i,x,n;'
+			.'for(i=0;n=a[i];i++){x=n.href.split("sf_admin_")[1];if (x=="page") n.href="#dashboard"; else if (x=="members") n.href="#folder/Members"; else n.href=(x=="account"||x=="folders"?"#":"#!")+x;n.onclick=function(){for(var j=0,k=document.getElementById("toplevel_page_sf_admin_page").querySelectorAll(".current");k[j];j++)k[j].className="";this.parentNode.className="current";};}'
+		.'}sf_admin();</script>';
 }
 
 function sf_scripts() {
@@ -111,6 +109,7 @@ function sf_scripts() {
 	wp_register_script('sf-mfm','//www.sourcefound.com/js/?mfm&ini',array(),null);
 	wp_register_script('sf-mfn','//www.sourcefound.com/js/?mfm',array(),null);
 }
+add_action('wp_enqueue_scripts','sf_scripts');
 
 function sf_title($ttl,$sep,$loc) {
 	global $post,$sf_hdr;
@@ -122,6 +121,7 @@ function sf_title($ttl,$sep,$loc) {
 	} else
 		return $ttl;
 }
+add_filter('wp_title','sf_title',20,3);
 
 function sf_head() {
 	global $post;
@@ -142,6 +142,8 @@ function sf_head() {
 		echo $out;
 	}
 }
+add_action('wp_head','sf_head');
+remove_action('wp_head','rel_canonical');
 
 function sf_shortcode($opt) {
 	$set=get_option('sf_set');
@@ -160,6 +162,7 @@ function sf_shortcode($opt) {
 					.(isset($set['fbk'])&&$set['fbk']?(' data-fbk="'.$set['fbk'].'"'):'')
 					.(isset($set['fnd'])&&$set['fnd']?(' data-fnd="'.$set['fnd'].'"'):'')
 					.(isset($set['rsp'])&&$set['rsp']?(' data-rsp="'.$set['rsp'].'"'):'')
+					.(isset($set['wpl'])&&$set['wpl']?(' data-wpl="'.esc_url($set['wpl']).'"'):'')
 					.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
 					.' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
 					.'<div id="SFpne" style="position:relative;"><div class="SFpne">'.(isset($opt['ini'])&&$opt['ini']=='0'?'':'Loading...').'</div></div>'
@@ -186,6 +189,7 @@ function sf_shortcode($opt) {
 	}
 	return isset($out)?$out:'';
 }
+add_shortcode('memberfindme','sf_shortcode');
 
 class sf_widget_event extends WP_Widget {
 	public function __construct() {
@@ -261,7 +265,7 @@ class sf_widget_folder extends WP_Widget {
 		if ($instance['act']=='1'&&isset($x)&&$x) {
 			$delay=intval($instance['delay'])*1000;
 			echo '<script>'
-				.$fn.'_animate=function(){var r=document.getElementById("'.$this->id.'").lastChild.previousSibling,x=r.querySelector(\'li[style*="table;"]\');if (x) {x.style.display="none";x=(x.nextSibling?x.nextSibling:r.firstChild);} else x=r.childNodes[Math.round(Math.random()*r.childNodes.length)];x.style.display="table";setTimeout('.$fn.'_animate,'.($delay?$delay:10000).');};'
+				.$fn.'_animate=function(){var r=document.getElementById("'.$this->id.'").querySelector(\'ul\'),x=r.querySelector(\'li[style*="table;"]\');if (x) {x.style.display="none";x=(x.nextSibling?x.nextSibling:r.firstChild);} else x=r.childNodes[Math.round(Math.random()*r.childNodes.length)];x.style.display="table";setTimeout('.$fn.'_animate,'.($delay?$delay:10000).');};'
 				.$fn.'_animate();'
 				.'</script>';
 		}
@@ -295,5 +299,6 @@ function sf_widgets_init() {
 	register_widget('sf_widget_event');
 	register_widget('sf_widget_folder');
 }
+add_action('widgets_init','sf_widgets_init');
 
 ?>
