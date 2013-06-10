@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.2
+Version: 1.1
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -61,6 +61,7 @@ function sf_admin_options() {
 		.'<tr valign="top"><th scope="row">Customize Search Button Text</th><td><input type="text" name="sf_set[fnd]" value="'.(isset($set['fnd'])&&$set['fnd']?$set['fnd']:'Search').'" /></td></tr>'
 		.'<tr valign="top"><th scope="row">Customize Group Email Button Text</th><td><input type="text" name="sf_set[rsp]" value="'.(isset($set['rsp'])?$set['rsp']:'Request Quotes').'" /></td></tr>'
 		.'</table>'
+		.'<input type="hidden" name="sf_set[wpl]" value="'.(isset($set['wpl'])?$set['wpl']:'').'" />'
 		.'<p class="submit"><input type="submit" name="submit" id="submit" class="button-primary" value="Save Changes"></p>'
 		.'</form></div>';
 }
@@ -91,23 +92,23 @@ function sf_admin_page() {
 	echo '<div id="SFctr" class="SF" data-org="10000" data-hme="'.$hme.'" data-ini="'.$ini.'" data-fnd="Search" data-pay="pk_live_3ixzpECcoHTeuFycsM6zR8Us" data-typ="org"'
 		.(isset($set['fbk'])&&$set['fbk']?(' data-fbk="'.$set['fbk'].'"'):'')
 		.' style="position:relative;padding:30px 20px 20px;"></div>'
-		.'<script type="text/javascript" src="//www.sourcefound.com/js/?all&ini"></script>'
+		.'<script type="text/javascript" src="//mfm-sourcefoundinc.netdna-ssl.com/all.js"></script>'
 		.'<script>function sf_admin(){'
 			.'var t=document.getElementById("toplevel_page_sf_admin_page");'
 			.'if (!t) return;'
 			.'t.querySelector(".wp-first-item a").innerHTML="Dashboard";'
 			.'var a=t.querySelectorAll("a"),i,x,n;'
 			.'for(i=0;n=a[i];i++){x=n.href.split("sf_admin_")[1];if (x=="page") n.href="#dashboard"; else if (x=="members") n.href="#folder/Members"; else n.href=(x=="account"||x=="folders"?"#":"#!")+x;n.onclick=function(){for(var j=0,k=document.getElementById("toplevel_page_sf_admin_page").querySelectorAll(".current");k[j];j++)k[j].className="";this.parentNode.className="current";};}'
-		.'}sf_admin();</script>';
+		.'}sf_admin();SF.init();</script>';
 }
 
 function sf_scripts() {
 	if (isset($_GET['_escaped_fragment_'])) {
-		wp_register_style('sf-css','//cdn.sourcefound.com/wl/SF.css');
+		wp_register_style('sf-css','//mfm-sourcefoundinc.netdna-ssl.com/all.css');
 		wp_enqueue_style('sf-css');
 	}
-	wp_register_script('sf-mfm','//www.sourcefound.com/js/?mfm&ini',array(),null);
-	wp_register_script('sf-mfn','//www.sourcefound.com/js/?mfm',array(),null);
+	wp_register_script('sf-mfm','//mfm-sourcefoundinc.netdna-ssl.com/mfi.js',array(),null);
+	wp_register_script('sf-mfn','//mfm-sourcefoundinc.netdna-ssl.com/mfm.js',array(),null);
 }
 add_action('wp_enqueue_scripts','sf_scripts');
 
@@ -115,7 +116,11 @@ function sf_title($ttl,$sep,$loc) {
 	global $post,$sf_hdr;
 	if (isset($_GET['_escaped_fragment_'])&&preg_match('/[^\[]\[memberfindme/',$post->post_content)) {
 		$set=get_option('sf_set');
-		$rsp=@file_get_contents("http://www.sourcefound.com/api?hdr=1&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_'])); 
+		for ($try=0,$rsp=false;$rsp===false&&$try<3;$try++) {
+			if ($try) usleep(100000);
+			$rsp=file_get_contents("http://www.sourcefound.com/api?hdr=1&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_'])); 
+		}
+		if (!$rsp) return $ttl;
 		$dat=json_decode($rsp,true);
 		return ($loc=='left'?($ttl." $sep "):'').$dat['ttl'].($loc=='right'?(" $sep ".$ttl):'');
 	} else
@@ -127,7 +132,11 @@ function sf_head() {
 	global $post;
 	if (isset($_GET['_escaped_fragment_'])&&preg_match('/[^\[]\[memberfindme/',$post->post_content)) {
 		$set=get_option('sf_set');
-		$rsp=@file_get_contents("http://www.sourcefound.com/api?hdr=1&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_'])); 
+		for ($try=0,$rsp=false;$rsp===false&&$try<3;$try++) {
+			if ($try) usleep(100000);
+			$rsp=file_get_contents("http://www.sourcefound.com/api?hdr=1&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_'])); 
+		}
+		if (!rsp) return;
 		$dat=json_decode($rsp,true);
 		$out='';
 		if (isset($dat['sum'])) $out.="<meta name='description' content='".$dat['sum']."'>\r\n";
@@ -151,7 +160,10 @@ function sf_shortcode($opt) {
 		$out='<div>MemberFindMe organization key not setup. Please update settings.</div>';
 	} else if (isset($opt['open'])) {
 		if (isset($_GET['_escaped_fragment_'])||(preg_match("/googlebot|slurp|msnbot|facebook/i",$_SERVER['HTTP_USER_AGENT'])>0)) {
-			$rsp=@file_get_contents("http://www.sourcefound.com/api?org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_']?$_GET['_escaped_fragment_']:substr($opt['open'],1))); 
+			for ($try=0,$rsp=false;$rsp===false&&$try<3;$try++) {
+				if ($try) usleep(100000);
+				$rsp=file_get_contents("http://www.sourcefound.com/api?org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_']?$_GET['_escaped_fragment_']:substr($opt['open'],1)));
+			}
 			$out='<div id="SFctr" class="SF" style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
 				.'<div id="SFpne" style="position:relative;">'.$rsp.'</div><div style="clear:both;"></div></div>';
 		} else {
@@ -197,13 +209,17 @@ class sf_widget_event extends WP_Widget {
 	}
 	public function widget($args,$instance ) {
 		extract($args);
+		$set=get_option('sf_set');
+		for ($try=0,$rsp=false;$rsp===false&&$try<3;$try++) {
+			if ($try) usleep(100000);
+			$rsp=file_get_contents("http://www.sourcefound.com/api?fi=evt&org=".$set['org']."&wee=1&grp=".$instance['grp']."&cnt=".$instance['cnt']."&sdp=".time());
+		}
+		if (!$rsp) return;
+		$dat=json_decode($rsp,true);
 		$title=apply_filters('widget_title',$instance['title']);
 		echo $before_widget;
 		if (!empty($title))
 			echo $before_title.$title.$after_title;
-		$set=get_option('sf_set');
-		$rsp=@file_get_contents("http://www.sourcefound.com/api?fi=evt&org=".$set['org']."&wee=1&grp=".$instance['grp']."&cnt=".$instance['cnt']."&sdp=".time()); 
-		$dat=json_decode($rsp,true);
 		echo '<ul>';
 		foreach ($dat as $x) {
 			$te=explode(',',$x['ezp']);
@@ -238,6 +254,13 @@ class sf_widget_folder extends WP_Widget {
 	}
 	public function widget($args,$instance ) {
 		extract($args);
+		$set=get_option('sf_set');
+		for ($try=0,$rsp=false;$rsp===false&&$try<3;$try++) {
+			if ($try) usleep(100000);
+			$rsp=file_get_contents("http://www.sourcefound.com/api?fi=dek&org=".$set['org']."&wem=1&lbl=".urlencode($instance['lbl']));
+		}
+		if (!$rsp) return;
+		$dat=json_decode($rsp,true);
 		$title=apply_filters('widget_title',$instance['title']);
 		if (empty($title))
 			echo str_replace('widget_sf_widget_folder','widget_sf_widget_folder widget_no_title',$before_widget);
@@ -245,18 +268,15 @@ class sf_widget_folder extends WP_Widget {
 			echo $before_widget;
 		if (!empty($title))
 			echo $before_title.$title.$after_title;
-		$set=get_option('sf_set');
-		$rsp=@file_get_contents("http://www.sourcefound.com/api?fi=dek&org=".$set['org']."&wem=1&lbl=".urlencode($instance['lbl'])); 
-		$dat=json_decode($rsp,true);
 		if ($instance['act']=='1') {
 			$fn=str_replace('-','_',$this->id);
-			echo '<ul class="sf_widget_folder_logos" style="list-style:none;margin:0;padding:10px;">';
+			echo '<ul class="sf_widget_folder_logos" style="list-style:none;margin:0;padding:5px;">';
 		} else
 			echo '<ul class="sf_widget_folder_list">';
 		foreach ($dat as $x) {
 			if ($instance['act']=='1')
-				echo '<li style="display:none;background-color:white;text-align:center;height:130px;padding:0;margin:0;table-layout:fixed;width:100%;"><a href="'.esc_attr($x['url']).'" style="display:table-cell;vertical-align:middle;width:100%;text-decoration:none;"><div style="display:block;width:100%;font-size:1.5em;">'
-					.($x['lgo']?('<img src="//d7efyznwb7ft3.cloudfront.net/'.$x['_id'].'_lgl.jpg" alt="'.esc_attr($x['nam']).'" onerror="this.parentNode.innerHTML=this.alt;" style="display:block;margin:0 auto;max-width:100%;max-height:80px;">'):esc_html($x['nam']))
+				echo '<li style="display:none;background-color:white;text-align:center;height:148px;padding:0;margin:0;table-layout:fixed;width:100%;"><a href="'.esc_attr($x['url']).'" style="display:table-cell;vertical-align:middle;padding:10px;text-decoration:none;"><div style="display:block;width:100%;font-size:1.5em;">'
+					.($x['lgo']?('<img src="//usr-sourcefoundinc.netdna-ssl.com/'.$x['_id'].'_lgl.jpg" alt="'.esc_attr($x['nam']).'" onerror="this.parentNode.innerHTML=this.alt;" style="display:block;margin:0 auto;max-width:100%;max-height:75px;">'):esc_html($x['nam']))
 					.'</div><small class="cnm" style="display:block;padding:10px;">'.esc_html($x['cnm']).'</small></a></li>';
 			else
 				echo '<li><a href="'.esc_attr($x['url']).'">'.esc_html($x['nam']).'</a><small class="cnm" style="display:block;">'.esc_html($x['cnm']).'</small></li>';
