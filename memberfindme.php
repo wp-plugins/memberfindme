@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.1
+Version: 1.2
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -25,15 +25,20 @@ License: GPL2
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+global $sf_dat;
+$sf_dat=false;
+
 function sf_admin_menu() {
 	add_options_page('MemberFindMe Settings','MemberFindMe','manage_options','sf_admin_options','sf_admin_options');
 	add_menu_page('MemberFindMe Admin','MemberFindMe','add_users','sf_admin_page','sf_admin_page','','2.1');
 	add_submenu_page('sf_admin_page','Members','Members','add_users','sf_admin_members','sf_admin_page');
+	//add_submenu_page('sf_admin_page','Membership Levels','Membership Levels','add_users','sf_admin_subscriptions','sf_admin_page');
+	//add_submenu_page('sf_admin_page','Labels','Labels','add_users','sf_admin_labels','sf_admin_page');
 	add_submenu_page('sf_admin_page','Folders','Folders','add_users','sf_admin_folders','sf_admin_page');
 	add_submenu_page('sf_admin_page','Event List','Event List','add_users','sf_admin_event-list','sf_admin_page');
 	add_submenu_page('sf_admin_page','Event Calendar','Event Calendar','add_users','sf_admin_calendar','sf_admin_page');
 	add_submenu_page('sf_admin_page','Help','Help','add_users','sf_admin_help','sf_admin_page');
-	add_submenu_page('sf_admin_page','Account','Account','add_users','sf_admin_account','sf_admin_page');
+	add_submenu_page('sf_admin_page','Account Settings','Account Settings','add_users','sf_admin_account','sf_admin_page');
 }
 
 function sf_admin_init() {
@@ -55,7 +60,6 @@ function sf_admin_options() {
 	$set=get_option('sf_set');
 	echo '<table class="form-table">'
 		.'<tr valign="top"><th scope="row">MemberFindMe Organization Key</th><td><input type="text" name="sf_set[org]" value="'.(isset($set['org'])?$set['org']:'').'" /></td></tr>'
-		.'<tr valign="top"><th scope="row">Stripe Public Key</th><td><input type="text" name="sf_set[pay]" value="'.(isset($set['pay'])?$set['pay']:'').'" style="width:300px;" /></td></tr>'
 		.'<tr valign="top"><th scope="row">Facebook API Key</th><td><input type="text" name="sf_set[fbk]" value="'.(isset($set['fbk'])?$set['fbk']:'').'" /></td></tr>'
 		.'<tr valign="top"><th scope="row">Google Maps API Key</th><td><input type="text" name="sf_set[map]" value="'.(isset($set['map'])?$set['map']:'').'" /></td></tr>'
 		.'<tr valign="top"><th scope="row">Customize Search Button Text</th><td><input type="text" name="sf_set[fnd]" value="'.(isset($set['fnd'])&&$set['fnd']?$set['fnd']:'Search').'" /></td></tr>'
@@ -69,7 +73,6 @@ function sf_admin_options() {
 function sf_admin_validate($in) {
 	$in['org']=intval($in['org']);
 	$in['org']=($in['org']?strval($in['org']):'');
-	$in['pay']=trim($in['pay']);
 	$in['fbk']=trim($in['fbk']);
 	$in['map']=trim($in['map']);
 	$in['fnd']=trim($in['fnd']);
@@ -89,8 +92,7 @@ function sf_admin_page() {
 		case 'account': 	$ini='account/manage'; $hme='account'; break;
 		default:			$ini='dashboard'; $hme='dashboard'; break;
 	}
-	echo '<div id="SFctr" class="SF" data-org="10000" data-hme="'.$hme.'" data-ini="'.$ini.'" data-fnd="Search" data-pay="pk_live_3ixzpECcoHTeuFycsM6zR8Us" data-typ="org"'
-		.(isset($set['fbk'])&&$set['fbk']?(' data-fbk="'.$set['fbk'].'"'):'')
+	echo '<div id="SFctr" class="SF" data-org="10000" data-hme="'.$hme.'" data-ini="'.$ini.'" data-typ="org"'
 		.' style="position:relative;padding:30px 20px 20px;"></div>'
 		.'<script type="text/javascript" src="//mfm-sourcefoundinc.netdna-ssl.com/all.js"></script>'
 		.'<script>function sf_admin(){'
@@ -98,74 +100,94 @@ function sf_admin_page() {
 			.'if (!t) return;'
 			.'t.querySelector(".wp-first-item a").innerHTML="Dashboard";'
 			.'var a=t.querySelectorAll("a"),i,x,n;'
-			.'for(i=0;n=a[i];i++){x=n.href.split("sf_admin_")[1];if (x=="page") n.href="#dashboard"; else if (x=="members") n.href="#folder/Members"; else n.href=(x=="account"||x=="folders"?"#":"#!")+x;n.onclick=function(){for(var j=0,k=document.getElementById("toplevel_page_sf_admin_page").querySelectorAll(".current");k[j];j++)k[j].className="";this.parentNode.className="current";};}'
+			.'for(i=0;n=a[i];i++){x=n.href.split("sf_admin_")[1];if (x=="page") n.href="#dashboard"; else if (x=="members") n.href="#folder/Members"; else n.href=(x=="account"||x=="folders"||x=="subscriptions"||x=="labels"?"#":"#!")+x;n.onclick=function(){for(var j=0,k=document.getElementById("toplevel_page_sf_admin_page").querySelectorAll(".current");k[j];j++)k[j].className="";this.parentNode.className="current";};}'
 		.'}sf_admin();SF.init();</script>';
 }
 
 function sf_scripts() {
-	if (isset($_GET['_escaped_fragment_'])) {
-		wp_register_style('sf-css','//mfm-sourcefoundinc.netdna-ssl.com/all.css');
-		wp_enqueue_style('sf-css');
-	}
 	wp_register_script('sf-mfm','//mfm-sourcefoundinc.netdna-ssl.com/mfi.js',array(),null);
 	wp_register_script('sf-mfn','//mfm-sourcefoundinc.netdna-ssl.com/mfm.js',array(),null);
 }
 add_action('wp_enqueue_scripts','sf_scripts');
 
 function sf_title($ttl,$sep,$loc) {
-	global $post,$sf_hdr;
-	if (isset($_GET['_escaped_fragment_'])&&preg_match('/[^\[]\[memberfindme/',$post->post_content)) {
+	global $post,$sf_dat;
+	$mat=array();
+	$mfm=preg_match('/([^\[]\[memberfindme|^\[memberfindme)\sopen=\"!([^\"]*)/',$post->post_content,$mat);
+	if ($mfm) {
+		wp_register_style('sf-css','//mfm-sourcefoundinc.netdna-ssl.com/all.css');
+		wp_enqueue_style('sf-css');
+	}
+	if ($mfm&&(isset($_GET['_escaped_fragment_'])||preg_match("/googlebot|slurp|msnbot|facebook/i",$_SERVER['HTTP_USER_AGENT'])>0)) {
 		$set=get_option('sf_set');
+		if (isset($_GET['_escaped_fragment_'])) {
+			$pne=$_GET['_escaped_fragment_'];
+			remove_action('wp_head','jetpack_og_tags');
+			if (defined('WPSEO_VERSION')) { // Yoast SEO
+				global $wpseo_front;
+				remove_action('wp_head',array($wpseo_front,'head'),1);
+			} else if (defined('AIOSEOP_VERSION')) { // All in One SEO
+				global $aiosp;
+				remove_action('wp_head',array($aiosp,'wp_head'));
+			}
+			remove_action('wp_head','rel_canonical');
+			remove_action('wp_head','index_rel_link');
+			remove_action('wp_head','start_post_rel_link');
+			remove_action('wp_head','adjacent_posts_rel_link_wp_head');
+			add_action('wp_head','sf_head',0);
+		} else if (isset($mat[2]))
+			$pne=$mat[2];
+		else
+			return $ttl;
 		for ($try=0,$rsp=false;$rsp===false&&$try<3;$try++) {
 			if ($try) usleep(100000);
-			$rsp=file_get_contents("http://www.sourcefound.com/api?hdr=1&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_'])); 
+			$rsp=file_get_contents("http://www.sourcefound.com/api?hdr&dtl&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($pne)); 
 		}
 		if (!$rsp) return $ttl;
-		$dat=json_decode($rsp,true);
-		return ($loc=='left'?($ttl." $sep "):'').$dat['ttl'].($loc=='right'?(" $sep ".$ttl):'');
-	} else
+		$sf_dat=json_decode($rsp,true);
+		$sf_dat['set']=$set;
+		if (!isset($sf_dat['ttl'])||!$sf_dat['ttl']) return $ttl;
+		return ($loc=='left'?($ttl." $sep "):'').$sf_dat['ttl'].($loc=='right'?(" $sep ".$ttl):'');
+	} else 
 		return $ttl;
 }
 add_filter('wp_title','sf_title',20,3);
 
 function sf_head() {
-	global $post;
-	if (isset($_GET['_escaped_fragment_'])&&preg_match('/[^\[]\[memberfindme/',$post->post_content)) {
-		$set=get_option('sf_set');
-		for ($try=0,$rsp=false;$rsp===false&&$try<3;$try++) {
-			if ($try) usleep(100000);
-			$rsp=file_get_contents("http://www.sourcefound.com/api?hdr=1&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_'])); 
+	global $sf_dat;
+	if ($sf_dat) {
+		$out=array();
+		if (isset($sf_dat['sum'])) 
+			$out[]='<meta name="description" content="'.str_replace('"','&quot;',$sf_dat['sum']).'"/>';
+		if (isset($sf_dat['ttl'])) {
+			$out[]='<meta property="og:site_name" content="'.str_replace('"','&quot;',get_bloginfo('name')).'"/>';
+			$out[]='<meta property="og:title" content="'.str_replace('"','&quot;',$sf_dat['ttl']).'"/>';
 		}
-		if (!rsp) return;
-		$dat=json_decode($rsp,true);
-		$out='';
-		if (isset($dat['sum'])) $out.="<meta name='description' content='".$dat['sum']."'>\r\n";
-		if (isset($dat['ttl'])) $out.="<meta property='og:title' content='".$dat['ttl']."' />\r\n";
-		if (isset($dat['sum'])) $out.="<meta property='og:description' content='".$dat['sum']."' />\r\n";
-		if (isset($dat['rel'])) $out.="<meta property='og:url' content='".$dat['rel']."' />\r\n";
-		if (isset($dat['img'])) $out.="<meta property='og:image' content='".$dat['img']."' />\r\n";
-		$out.="<meta property='og:site_name' content='".get_bloginfo('name')."' />\r\n";
-		if (isset($dat['rel'])) $out.="<link rel='canonical' href='".$dat['rel']."'/>\r\n";
-		if (isset($dat['nxt'])) $out.="<link rel='next' href='".$dat['nxt']."'/>\r\n";
-		if (isset($dat['prv'])) $out.="<link rel='prev' href='".$dat['prv']."'/>\r\n";
-		echo $out;
+		if (isset($sf_dat['sum'])) 
+			$out[]='<meta property="og:description" content="'.str_replace('"','&quot;',$sf_dat['sum']).'"/>';
+		if (isset($sf_dat['img'])) 
+			$out[]='<meta property="og:image" content="'.$sf_dat['img'].'"/>';
+		if (isset($_GET['_escaped_fragment_'])&&isset($sf_dat['rel'])) {
+			$out[]='<meta property="og:url" content="'.$sf_dat['rel'].'"/>';
+			$out[]='<link rel="canonical" href="'.$sf_dat['rel'].'"/>';
+		}
+		if (isset($sf_dat['nxt'])) 
+			$out[]='<link rel="next" href="'.$sf_dat['nxt'].'"/>';
+		if (isset($sf_dat['prv'])) 
+			$out[]='<link rel="prev" href="'.$sf_dat['prv'].'"/>';
+		echo implode("\r\n",$out).(count($out)?"\r\n":'');
 	}
 }
-add_action('wp_head','sf_head');
-remove_action('wp_head','rel_canonical');
 
 function sf_shortcode($opt) {
+	global $sf_dat;
 	$set=get_option('sf_set');
 	if (!isset($set['org'])||!$set['org']) {
 		$out='<div>MemberFindMe organization key not setup. Please update settings.</div>';
 	} else if (isset($opt['open'])) {
-		if (isset($_GET['_escaped_fragment_'])||(preg_match("/googlebot|slurp|msnbot|facebook/i",$_SERVER['HTTP_USER_AGENT'])>0)) {
-			for ($try=0,$rsp=false;$rsp===false&&$try<3;$try++) {
-				if ($try) usleep(100000);
-				$rsp=file_get_contents("http://www.sourcefound.com/api?org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($_GET['_escaped_fragment_']?$_GET['_escaped_fragment_']:substr($opt['open'],1)));
-			}
+		if ($sf_dat) {
 			$out='<div id="SFctr" class="SF" style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
-				.'<div id="SFpne" style="position:relative;">'.$rsp.'</div><div style="clear:both;"></div></div>';
+				.'<div id="SFpne" style="position:relative;">'.$sf_dat['dtl'].'</div><div style="clear:both;"></div></div>';
 		} else {
 			$out='<div id="SFctr" class="SF" data-ini="'.$opt['open'].'"'
 					.(strpos($opt['open'],'account')===0?'':(' data-hme="'.$opt['open'].'"'))
