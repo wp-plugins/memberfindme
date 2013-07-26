@@ -4,7 +4,7 @@ Donate link: http://memberfind.me
 Tags: memberfindme, event calendar, event registration, member directory, business directory, membership management, billing, stripe, paypal, quickbooks
 Requires at least: 3.0
 Tested up to: 3.5.2
-Stable tag: 1.2
+Stable tag: 1.3
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,6 +63,7 @@ This plugin integrates MemberFindMe member management, event system and member d
 * Share and email member profiles
 * SEO optimized with Rich Snippets
 * Member slideshow widget
+* Aggregated deals page
 
 == Installation ==
 
@@ -94,6 +95,7 @@ This plugin requires a MemberFindMe subscription. Please visit [MemberFindMe](ht
 4. Dashboard - Stream.
 5. Dashboard - Financial.
 6. Interactive directory map.
+7. Deals page.
 
 == Changelog ==
 
@@ -104,4 +106,4 @@ This plugin requires a MemberFindMe subscription. Please visit [MemberFindMe](ht
 * Stable release
 
 = 1.2 =
-* Improved integration with Wordpress SEO and All-In-One SEO Pack plugins
+* Improved SEO

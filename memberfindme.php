@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.2
+Version: 1.3
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -120,6 +120,8 @@ function sf_title($ttl,$sep,$loc) {
 	}
 	if ($mfm&&(isset($_GET['_escaped_fragment_'])||preg_match("/googlebot|slurp|msnbot|facebook/i",$_SERVER['HTTP_USER_AGENT'])>0)) {
 		$set=get_option('sf_set');
+		if (!isset($set['org'])||!$set['org'])
+			return $ttl;
 		if (isset($_GET['_escaped_fragment_'])) {
 			$pne=$_GET['_escaped_fragment_'];
 			remove_action('wp_head','jetpack_og_tags');
@@ -179,17 +181,27 @@ function sf_head() {
 	}
 }
 
-function sf_shortcode($opt) {
+function sf_shortcode($content) {
 	global $sf_dat;
 	$set=get_option('sf_set');
-	if (!isset($set['org'])||!$set['org']) {
-		$out='<div>MemberFindMe organization key not setup. Please update settings.</div>';
-	} else if (isset($opt['open'])) {
-		if ($sf_dat) {
-			$out='<div id="SFctr" class="SF" style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
-				.'<div id="SFpne" style="position:relative;">'.$sf_dat['dtl'].'</div><div style="clear:both;"></div></div>';
-		} else {
-			$out='<div id="SFctr" class="SF" data-ini="'.$opt['open'].'"'
+	$mfm=false;
+	for ($i=0;($x=strpos($content,'[memberfindme ',$i))!==false;$i=$x+1) {
+		$y=strpos($content,']',$x);
+		if (($x>0&&substr($content,$x-1,1)=='[')||$y===false) continue; // escaped shortcode or shortcode not closed
+		$mat=array();
+		if (!preg_match_all('/\s([a-z]*)="([^"]*)"/',substr($content,$x+1,$y-$x-1),$mat,PREG_PATTERN_ORDER)) continue;
+		foreach ($mat[1] as $key=>$val) $opt[$val]=$mat[2][$key];
+		// create output
+		if (!isset($set['org'])||!$set['org']) {
+			$out=(isset($opt['open'])&&!$mfm?'<div>MemberFindMe organization key not setup. Please update settings.</div>':'');
+		} else if (isset($opt['open'])) {
+			if ($mfm) {
+				$out='';
+			} else if ($sf_dat) {
+				$out='<div id="SFctr" class="SF" style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
+					.'<div id="SFpne" style="position:relative;">'.$sf_dat['dtl'].'</div><div style="clear:both;"></div></div>';
+			} else {
+				$out='<div id="SFctr" class="SF" data-ini="'.$opt['open'].'"'
 					.(strpos($opt['open'],'account')===0?'':(' data-hme="'.$opt['open'].'"'))
 					.(isset($set['org'])&&$set['org']?(' data-org="'.$set['org'].'"'):'')
 					.(isset($set['pay'])&&$set['pay']?(' data-pay="'.$set['pay'].'"'):'')
@@ -201,29 +213,33 @@ function sf_shortcode($opt) {
 					.' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
 					.'<div id="SFpne" style="position:relative;"><div class="SFpne">'.(isset($opt['ini'])&&$opt['ini']=='0'?'':'Loading...').'</div></div>'
 					.'<div style="clear:both;"></div>'
-				.'</div>';
-			wp_enqueue_script(isset($opt['ini'])&&$opt['ini']=='0'?'sf-mfn':'sf-mfm');
-		}
-	} else if (isset($opt['button'])) { 
-		$out=(isset($opt['type'])?('<'.$opt['type']):'<button')
-			.(isset($opt['type'])&&$opt['type']=='img'&&isset($opt['src'])?(' src="'.$opt['src'].'"'):'')
-			.(isset($opt['class'])?(' class="'.$opt['class'].'"'):'')
-			.(isset($opt['style'])?(' style="'.$opt['style'].'"'):' style="cursor:pointer;"')
-			.($opt['button']=='account'?(' onmouseout="if (SF) SF.usr.account(event,this);" onmouseover="if (SF) SF.usr.account(event,this);" onclick="if (SF) SF.usr.account(event,this);">'.(isset($opt['text'])?$opt['text']:'My Account')):'')
-			.($opt['button']=='join'?(' onclick="if (SF) SF.open(\'account/join\');">'.(isset($opt['text'])?$opt['text']:'Join')):'')
-			.(isset($opt['type'])?($opt['type']=='img'?'':('</'.$opt['type'].'>')):'</button>');
-	} else if (isset($opt['join'])) {
-		$out=(isset($opt['type'])?('<'.$opt['type']):'<a')
-			.(isset($opt['type'])&&$opt['type']=='img'&&isset($opt['src'])?(' src="'.$opt['src'].'"'):'')
-			.(isset($opt['class'])?(' class="'.$opt['class'].'"'):'')
-			.(isset($opt['style'])?(' style="'.$opt['style'].'"'):' style="cursor:pointer;"')
-			.(isset($opt['type'])&&$opt['type']!='a'?(' onclick="SF.init();SF.open(\'account/join/'.$opt['join'].'">'):(' onclick="SF.init();" href="#account/join/'.$opt['join'].'">'))
-			.(isset($opt['text'])?$opt['text']:'Join')
-			.(isset($opt['type'])?($opt['type']=='img'?'':('</'.$opt['type'].'>')):'</a>');
+					.'</div>';
+				wp_enqueue_script(isset($opt['ini'])&&$opt['ini']=='0'?'sf-mfn':'sf-mfm');
+			}
+			$mfm=true;
+		} else if (isset($opt['button'])) { 
+			$out=(isset($opt['type'])?('<'.$opt['type']):'<button')
+				.(isset($opt['type'])&&$opt['type']=='img'&&isset($opt['src'])?(' src="'.$opt['src'].'"'):'')
+				.(isset($opt['class'])?(' class="'.$opt['class'].'"'):'')
+				.(isset($opt['style'])?(' style="'.$opt['style'].'"'):' style="cursor:pointer;"')
+				.($opt['button']=='account'?(' onmouseout="if (SF) SF.usr.account(event,this);" onmouseover="if (SF) SF.usr.account(event,this);" onclick="if (SF) SF.usr.account(event,this);">'.(isset($opt['text'])?$opt['text']:'My Account')):'')
+				.($opt['button']=='join'?(' onclick="if (SF) SF.open(\'account/join\');">'.(isset($opt['text'])?$opt['text']:'Join')):'')
+				.(isset($opt['type'])?($opt['type']=='img'?'':('</'.$opt['type'].'>')):'</button>');
+		} else if (isset($opt['join'])) {
+			$out=(isset($opt['type'])?('<'.$opt['type']):'<a')
+				.(isset($opt['type'])&&$opt['type']=='img'&&isset($opt['src'])?(' src="'.$opt['src'].'"'):'')
+				.(isset($opt['class'])?(' class="'.$opt['class'].'"'):'')
+				.(isset($opt['style'])?(' style="'.$opt['style'].'"'):' style="cursor:pointer;"')
+				.(isset($opt['type'])&&$opt['type']!='a'?(' onclick="SF.init();SF.open(\'account/join/'.$opt['join'].'">'):(' onclick="SF.init();" href="#account/join/'.$opt['join'].'">'))
+				.(isset($opt['text'])?$opt['text']:'Join')
+				.(isset($opt['type'])?($opt['type']=='img'?'':('</'.$opt['type'].'>')):'</a>');
+		} else
+			$out='';
+		$content=substr_replace($content,$out,$x,$y-$x+1);
 	}
-	return isset($out)?$out:'';
+	return $content;
 }
-add_shortcode('memberfindme','sf_shortcode');
+add_filter('the_content','sf_shortcode',7);
 
 class sf_widget_event extends WP_Widget {
 	public function __construct() {
