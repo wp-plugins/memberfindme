@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.3
+Version: 1.4
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -239,7 +239,7 @@ function sf_shortcode($content) {
 	}
 	return $content;
 }
-add_filter('the_content','sf_shortcode',7);
+add_filter('the_content','sf_shortcode',99);
 
 class sf_widget_event extends WP_Widget {
 	public function __construct() {
