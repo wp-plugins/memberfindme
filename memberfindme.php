@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.4
+Version: 1.5
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -32,8 +32,7 @@ function sf_admin_menu() {
 	add_options_page('MemberFindMe Settings','MemberFindMe','manage_options','sf_admin_options','sf_admin_options');
 	add_menu_page('MemberFindMe Admin','MemberFindMe','add_users','sf_admin_page','sf_admin_page','','2.1');
 	add_submenu_page('sf_admin_page','Members','Members','add_users','sf_admin_members','sf_admin_page');
-	//add_submenu_page('sf_admin_page','Membership Levels','Membership Levels','add_users','sf_admin_subscriptions','sf_admin_page');
-	//add_submenu_page('sf_admin_page','Labels','Labels','add_users','sf_admin_labels','sf_admin_page');
+	add_submenu_page('sf_admin_page','Labels','Labels &amp; Membership','add_users','sf_admin_labels','sf_admin_page');
 	add_submenu_page('sf_admin_page','Folders','Folders','add_users','sf_admin_folders','sf_admin_page');
 	add_submenu_page('sf_admin_page','Event List','Event List','add_users','sf_admin_event-list','sf_admin_page');
 	add_submenu_page('sf_admin_page','Event Calendar','Event Calendar','add_users','sf_admin_calendar','sf_admin_page');
@@ -85,6 +84,7 @@ function sf_admin_page() {
 	$set=get_option('sf_set');
 	switch (substr($plugin_page,9)) {
 		case 'members':		$ini='folder/Members'; $hme='folder/Members'; break;
+		case 'labels':		$ini='labels'; $hme='labels'; break;
 		case 'folders':		$ini='folders'; $hme='folders'; break;
 		case 'event-list':	$ini='!event-list'; $hme='!event-list'; break;
 		case 'calendar':	$ini='!calendar'; $hme='!calendar'; break;
@@ -95,13 +95,13 @@ function sf_admin_page() {
 	echo '<div id="SFctr" class="SF" data-org="10000" data-hme="'.$hme.'" data-ini="'.$ini.'" data-typ="org"'
 		.' style="position:relative;padding:30px 20px 20px;"></div>'
 		.'<script type="text/javascript" src="//mfm-sourcefoundinc.netdna-ssl.com/all.js"></script>'
-		.'<script>function sf_admin(){'
+		.'<script>SF.init();function sf_admin(){'
 			.'var t=document.getElementById("toplevel_page_sf_admin_page");'
 			.'if (!t) return;'
 			.'t.querySelector(".wp-first-item a").innerHTML="Dashboard";'
 			.'var a=t.querySelectorAll("a"),i,x,n;'
 			.'for(i=0;n=a[i];i++){x=n.href.split("sf_admin_")[1];if (x=="page") n.href="#dashboard"; else if (x=="members") n.href="#folder/Members"; else n.href=(x=="account"||x=="folders"||x=="subscriptions"||x=="labels"?"#":"#!")+x;n.onclick=function(){for(var j=0,k=document.getElementById("toplevel_page_sf_admin_page").querySelectorAll(".current");k[j];j++)k[j].className="";this.parentNode.className="current";};}'
-		.'}sf_admin();SF.init();</script>';
+		.'}sf_admin();</script>';
 }
 
 function sf_scripts() {
@@ -271,14 +271,14 @@ class sf_widget_event extends WP_Widget {
 	public function update($new_instance,$old_instance ) {
 		$instance=$old_instance;
 		$instance['title']=strip_tags($new_instance['title']);
-		$instance['grp']=$new_instance['grp']?strval(intval($new_instance['grp'])):'0';
+		$instance['grp']=$new_instance['grp']?$new_instance['grp']:'';
 		$instance['cnt']=$new_instance['cnt']?strval(intval($new_instance['cnt'])):'0';
 		return $instance;
 	}
 	public function form($instance) {
-		$instance=wp_parse_args($instance,array('title'=>'','grp'=>'0','cnt'=>'3'));
+		$instance=wp_parse_args($instance,array('title'=>'','grp'=>'','cnt'=>'3'));
 		$title=strip_tags($instance['title']);
-		$grp=intval($instance['grp']);
+		$grp=$instance['grp'];
 		$cnt=intval($instance['cnt']);
 		echo '<p><label for="'.$this->get_field_id('title').'">Title:</label> <input class="widefat" id="'.$this->get_field_id('title').'" name="'.$this->get_field_name('title').'" type="text" value="'.esc_attr($title).'" /></p>';
 		echo '<p><label for="'.$this->get_field_id('grp').'">Calendar group:</label> <input id="'.$this->get_field_id('grp').'" name="'.$this->get_field_name('grp').'" type="text" value="'.$grp.'" size="3"/></p>';
@@ -343,8 +343,8 @@ class sf_widget_folder extends WP_Widget {
 		$lbl=$instance['lbl'];
 		$act=$instance['act'];
 		$delay=$instance['delay'];
-		echo '<p><label for="'.$this->get_field_id('title').'">Title:</label> <input class="widefat" id="'.$this->get_field_id('title').'" name="'.$this->get_field_name('title').'" type="text" value="'.attribute_escape($title).'" /></p>';
-		echo '<p><label for="'.$this->get_field_id('lbl').'">Folder name:</label> <input class="widefat" id="'.$this->get_field_id('lbl').'" name="'.$this->get_field_name('lbl').'" type="text" value="'.attribute_escape($lbl).'" /></p>';
+		echo '<p><label for="'.$this->get_field_id('title').'">Title:</label> <input class="widefat" id="'.$this->get_field_id('title').'" name="'.$this->get_field_name('title').'" type="text" value="'.esc_attr($title).'" /></p>';
+		echo '<p><label for="'.$this->get_field_id('lbl').'">Folder name:</label> <input class="widefat" id="'.$this->get_field_id('lbl').'" name="'.$this->get_field_name('lbl').'" type="text" value="'.esc_attr($lbl).'" /></p>';
 		echo '<p><label for="'.$this->get_field_id('act').'">Display:</label> <select id="'.$this->get_field_id('act').'" name="'.$this->get_field_name('act').'" onchange="this.parentNode.nextSibling.style.display=(this.value==\'1\'?\'\':\'none\');">'
 				.'<option value="0"'.($act=='0'?' selected="selected"':'').'>List</option>'
 				.'<option value="1"'.($act=='1'?' selected="selected"':'').'>Slideshow</option>'

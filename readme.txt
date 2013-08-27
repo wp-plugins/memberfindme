@@ -4,7 +4,7 @@ Donate link: http://memberfind.me
 Tags: memberfindme, event calendar, event registration, member directory, business directory, membership management, billing, stripe, paypal, quickbooks
 Requires at least: 3.0
 Tested up to: 3.5.2
-Stable tag: 1.4
+Stable tag: 1.5
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Membership manangement, event system and member directory for groups and organiz
 
 == Description ==
 
-[MemberFindMe](http://memberfind.me/) provides a comprehensive website, membership management and event management solution for small to mid sized chambers, professional groups, associations and other member organizations. Create a smarter, more interactive website that features your members, promote your events, provide self-serve event registration, and organizes your membership information.
+[MemberFindMe](http://memberfind.me/) is a comprehensive website, membership management and event management solution for small to mid-sized chambers, professional groups, associations and other membership organizations. Create a smarter, more interactive website that features your members, promotes your events, provides membership and event registration/billing, and organizes your membership information.
 
 This plugin integrates MemberFindMe member management, event system and member directory to your Wordpress site. MemberFindMe subscription is required (free for under 50 members).
 
@@ -70,7 +70,6 @@ This plugin integrates MemberFindMe member management, event system and member d
 1. Install the MemberFindMe plugin via the WordPress.org plugin directory or upload it to your plugins directory.
 1. Activate the plugin
 1. Under 'Settings' -> 'MemberFindMe', enter your MemberFindMe organization key
-1. To enable Facebook share button, enter the Facebook API key for your website
 
 == Frequently Asked Questions ==
 
@@ -107,3 +106,6 @@ This plugin requires a MemberFindMe subscription. Please visit [MemberFindMe](ht
 
 = 1.2 =
 * Improved SEO
+
+= 1.5 =
+* Separate menu for membership and labels
