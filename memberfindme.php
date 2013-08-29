@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.5.1
+Version: 1.5.2
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -143,7 +143,7 @@ function sf_title($ttl,$sep,$loc) {
 			return $ttl;
 		for ($try=0,$rsp=false;$rsp===false&&$try<3;$try++) {
 			if ($try) usleep(100000);
-			$rsp=file_get_contents("http://www.sourcefound.com/api?hdr&dtl&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($pne)); 
+			$rsp=@file_get_contents("http://www.sourcefound.com/api?hdr&dtl&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($pne)); 
 		}
 		if (!$rsp) return $ttl;
 		$sf_dat=json_decode($rsp,true);
@@ -250,7 +250,7 @@ class sf_widget_event extends WP_Widget {
 		$set=get_option('sf_set');
 		for ($try=0,$rsp=false;$rsp===false&&$try<3;$try++) {
 			if ($try) usleep(100000);
-			$rsp=file_get_contents("http://www.sourcefound.com/api?fi=evt&org=".$set['org']."&wee=1&grp=".$instance['grp']."&cnt=".$instance['cnt']."&sdp=".time());
+			$rsp=@file_get_contents("http://www.sourcefound.com/api?fi=evt&org=".$set['org']."&wee=1&grp=".$instance['grp']."&cnt=".$instance['cnt']."&sdp=".time());
 		}
 		if (!$rsp) return;
 		$dat=json_decode($rsp,true);
@@ -295,7 +295,7 @@ class sf_widget_folder extends WP_Widget {
 		$set=get_option('sf_set');
 		for ($try=0,$rsp=false;$rsp===false&&$try<3;$try++) {
 			if ($try) usleep(100000);
-			$rsp=file_get_contents("http://www.sourcefound.com/api?fi=dek&org=".$set['org']."&wem=1&lbl=".urlencode($instance['lbl']));
+			$rsp=@file_get_contents("http://www.sourcefound.com/api?fi=dek&org=".$set['org']."&wem=1&lbl=".urlencode($instance['lbl']));
 		}
 		if (!$rsp) return;
 		$dat=json_decode($rsp,true);
