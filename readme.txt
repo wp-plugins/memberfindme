@@ -4,7 +4,7 @@ Donate link: http://memberfind.me
 Tags: memberfindme, event calendar, event registration, member directory, business directory, membership management, billing, stripe, paypal, quickbooks
 Requires at least: 3.0
 Tested up to: 3.5.2
-Stable tag: 1.5
+Stable tag: 1.5.1
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
