@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.5.2
+Version: 1.6
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -37,6 +37,7 @@ function sf_admin_menu() {
 	add_submenu_page('sf_admin_page','Event List','Event List','add_users','sf_admin_event-list','sf_admin_page');
 	add_submenu_page('sf_admin_page','Event Calendar','Event Calendar','add_users','sf_admin_calendar','sf_admin_page');
 	add_submenu_page('sf_admin_page','Help','Help','add_users','sf_admin_help','sf_admin_page');
+	add_submenu_page('sf_admin_page','Customization','Customization','add_users','sf_admin_custom','sf_admin_page');
 	add_submenu_page('sf_admin_page','Account Settings','Account Settings','add_users','sf_admin_account','sf_admin_page');
 }
 
@@ -61,8 +62,9 @@ function sf_admin_options() {
 		.'<tr valign="top"><th scope="row">MemberFindMe Organization Key</th><td><input type="text" name="sf_set[org]" value="'.(isset($set['org'])?$set['org']:'').'" /></td></tr>'
 		.'<tr valign="top"><th scope="row">Facebook API Key</th><td><input type="text" name="sf_set[fbk]" value="'.(isset($set['fbk'])?$set['fbk']:'').'" /></td></tr>'
 		.'<tr valign="top"><th scope="row">Google Maps API Key</th><td><input type="text" name="sf_set[map]" value="'.(isset($set['map'])?$set['map']:'').'" /></td></tr>'
-		.'<tr valign="top"><th scope="row">Customize Search Button Text</th><td><input type="text" name="sf_set[fnd]" value="'.(isset($set['fnd'])&&$set['fnd']?$set['fnd']:'Search').'" /></td></tr>'
-		.'<tr valign="top"><th scope="row">Customize Group Email Button Text</th><td><input type="text" name="sf_set[rsp]" value="'.(isset($set['rsp'])?$set['rsp']:'Request Quotes').'" /></td></tr>'
+		.'<tr valign="top"><th scope="row">Customize Search Button Text</th><td><input type="text" name="sf_set[fnd]" value="'.(empty($set['fnd'])?'Search':$set['fnd']).'" /></td></tr>'
+		.'<tr valign="top"><th scope="row">Customize Options Button Text</th><td><input type="text" name="sf_set[adv]" value="'.(empty($set['adv'])?'Options':$set['adv']).'" /></td></tr>'
+		.'<tr valign="top"><th scope="row">Customize Group Email Button Text</th><td><input type="text" name="sf_set[rsp]" value="'.(empty($set['rsp'])?'Request Quotes':$set['rsp']).'" /></td></tr>'
 		.'</table>'
 		.'<input type="hidden" name="sf_set[wpl]" value="'.(isset($set['wpl'])?$set['wpl']:'').'" />'
 		.'<p class="submit"><input type="submit" name="submit" id="submit" class="button-primary" value="Save Changes"></p>'
@@ -75,6 +77,7 @@ function sf_admin_validate($in) {
 	$in['fbk']=trim($in['fbk']);
 	$in['map']=trim($in['map']);
 	$in['fnd']=trim($in['fnd']);
+	$in['adv']=trim($in['adv']);
 	$in['rsp']=trim($in['rsp']);
 	return $in;
 }
@@ -89,19 +92,32 @@ function sf_admin_page() {
 		case 'event-list':	$ini='!event-list'; $hme='!event-list'; break;
 		case 'calendar':	$ini='!calendar'; $hme='!calendar'; break;
 		case 'help':		$ini='!help'; $hme='!help'; break;
+		case 'custom':		$ini='custom'; $hme='custom'; break;
 		case 'account': 	$ini='account/manage'; $hme='account'; break;
 		default:			$ini='dashboard'; $hme='dashboard'; break;
 	}
-	echo '<div id="SFctr" class="SF" data-org="10000" data-hme="'.$hme.'" data-ini="'.$ini.'" data-typ="org"'
+	echo '<div id="SFctr" class="SF" data-org="10000" data-hme="'.$hme.'" data-ini="'.$ini.'" data-typ="org" data-wpo="options.php"'
 		.' style="position:relative;padding:30px 20px 20px;"></div>'
-		.'<script type="text/javascript" src="//mfm-sourcefoundinc.netdna-ssl.com/all.js"></script>'
-		.'<script>SF.init();function sf_admin(){'
+		.'<script>function sf_admin(){'
 			.'var t=document.getElementById("toplevel_page_sf_admin_page");'
 			.'if (!t) return;'
-			.'t.querySelector(".wp-first-item a").innerHTML="Dashboard";'
-			.'var a=t.querySelectorAll("a"),i,x,n;'
-			.'for(i=0;n=a[i];i++){x=n.href.split("sf_admin_")[1];if (x=="page") n.href="#dashboard"; else if (x=="members") n.href="#folder/Members"; else n.href=(x=="account"||x=="folders"||x=="subscriptions"||x=="labels"?"#":"#!")+x;n.onclick=function(){for(var j=0,k=document.getElementById("toplevel_page_sf_admin_page").querySelectorAll(".current");k[j];j++)k[j].className="";this.parentNode.className="current";};}'
-		.'}sf_admin();</script>';
+			.'var a=t.querySelectorAll(".wp-submenu a"),i,x,n;'
+			.'for(i=0;n=a[i];i++){'
+				.'x=n.href.split("sf_admin_")[1];'
+				.'n.parentNode.className="";'
+				.'if (x=="page"){n.innerHTML="Dashboard";n.parentNode.id="SFhdrdbd";n.href="#dashboard";}'
+				.'else if (x=="members"){n.parentNode.id="SFhdrdem";n.href="#folder/Members";}'
+				.'else if (x=="labels"){n.parentNode.id="SFhdrlbl";n.href="#labels";}'
+				.'else if (x=="folders"){n.parentNode.id="SFhdrdek";n.href="#folders";}'
+				.'else if (x=="event-list"){n.parentNode.id="SFhdrevl";n.href="#!event-list";}'
+				.'else if (x=="calendar"){n.parentNode.id="SFhdrevc";n.href="#!calendar";}'
+				.'else if (x=="help"){n.parentNode.id="SFhdrhlp";n.href="#help";}'
+				.'else if (x=="custom"){n.parentNode.id="SFhdrtpl";n.href="#custom";}'
+				.'else if (x=="account"){n.parentNode.id="SFhdracc";n.href="#account";}'
+			.'}'
+		.'}sf_admin();</script>'
+		.'<script type="text/javascript" src="//mfm-sourcefoundinc.netdna-ssl.com/all.js"></script>'
+		.'<script>SF.init();</script>';
 }
 
 function sf_scripts() {
@@ -203,12 +219,13 @@ function sf_shortcode($content) {
 			} else {
 				$out='<div id="SFctr" class="SF" data-ini="'.$opt['open'].'"'
 					.(strpos($opt['open'],'account')===0?'':(' data-hme="'.$opt['open'].'"'))
-					.(isset($set['org'])&&$set['org']?(' data-org="'.$set['org'].'"'):'')
-					.(isset($set['pay'])&&$set['pay']?(' data-pay="'.$set['pay'].'"'):'')
-					.(isset($set['fbk'])&&$set['fbk']?(' data-fbk="'.$set['fbk'].'"'):'')
-					.(isset($set['fnd'])&&$set['fnd']?(' data-fnd="'.$set['fnd'].'"'):'')
-					.(isset($set['rsp'])&&$set['rsp']?(' data-rsp="'.$set['rsp'].'"'):'')
-					.(isset($set['wpl'])&&$set['wpl']?(' data-wpl="'.esc_url($set['wpl']).'"'):'')
+					.(empty($set['org'])?'':(' data-org="'.$set['org'].'"'))
+					.(empty($set['pay'])?'':(' data-pay="'.$set['pay'].'"'))
+					.(empty($set['fbk'])?'':(' data-fbk="'.$set['fbk'].'"'))
+					.(empty($set['fnd'])?'':(' data-fnd="'.$set['fnd'].'"'))
+					.(empty($set['adv'])?'':(' data-adv="'.$set['adv'].'"'))
+					.(empty($set['rsp'])?'':(' data-rsp="'.$set['rsp'].'"'))
+					.(empty($set['wpl'])?'':(' data-wpl="'.esc_url($set['wpl']).'"'))
 					.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
 					.' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
 					.'<div id="SFpne" style="position:relative;"><div class="SFpne">'.(isset($opt['ini'])&&$opt['ini']=='0'?'':'Loading...').'</div></div>'
