@@ -4,7 +4,7 @@ Donate link: http://memberfind.me
 Tags: memberfindme, event calendar, event registration, member directory, business directory, membership management, billing, stripe, paypal, quickbooks
 Requires at least: 3.0
 Tested up to: 3.5.2
-Stable tag: 1.6
+Stable tag: 1.6.1
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -108,7 +108,11 @@ This plugin requires a MemberFindMe subscription. Please visit [MemberFindMe](ht
 * Improved SEO
 
 = 1.5 =
-* Separate menu for membership and labels
+* Adds menu for label and membership
 
 = 1.6 =
-* Customization menu
+* Adds menu for advanced customization
+
+= 1.6.1 =
+* Adds option to disable social share buttons
+* Adds option to load js/css inline
