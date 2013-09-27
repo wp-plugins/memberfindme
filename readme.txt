@@ -4,7 +4,7 @@ Donate link: http://memberfind.me
 Tags: memberfindme, event calendar, event registration, member directory, business directory, membership management, billing, stripe, paypal, quickbooks
 Requires at least: 3.0
 Tested up to: 3.5.2
-Stable tag: 1.6.1
+Stable tag: 1.6.2
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -116,3 +116,7 @@ This plugin requires a MemberFindMe subscription. Please visit [MemberFindMe](ht
 = 1.6.1 =
 * Adds option to disable social share buttons
 * Adds option to load js/css inline
+
+= 1.6.2 =
+* Widget can now pull contacts from a label
+* Adds option to display contact name on cards

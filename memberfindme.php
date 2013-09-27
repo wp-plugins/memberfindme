@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.6.1
+Version: 1.6.2
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -62,9 +62,10 @@ function sf_admin_options() {
 		.'<tr valign="top"><th scope="row">MemberFindMe organization key</th><td><input type="text" name="sf_set[org]" value="'.(isset($set['org'])?$set['org']:'').'" /></td></tr>'
 		.'<tr valign="top"><th scope="row">Facebook API key (optional)</th><td><input type="text" name="sf_set[fbk]" value="'.(isset($set['fbk'])?$set['fbk']:'').'" /></td></tr>'
 		.'<tr valign="top"><th scope="row">Google Maps API key (optional)</th><td><input type="text" name="sf_set[map]" value="'.(isset($set['map'])?$set['map']:'').'" /></td></tr>'
+		.'<tr valign="top"><th scope="row">Show contact name in directory</th><td><input type="checkbox" name="sf_set[ctc]"'.(empty($set['ctc'])?'':' checked="1"').' /></td></tr>'
 		.'<tr valign="top"><th scope="row">Customize search button text</th><td><input type="text" name="sf_set[fnd]" value="'.(empty($set['fnd'])?'Search':$set['fnd']).'" /></td></tr>'
-		.'<tr valign="top"><th scope="row">Customize options button text</th><td><input type="text" name="sf_set[adv]" value="'.(empty($set['adv'])?'Options':$set['adv']).'" /></td></tr>'
-		.'<tr valign="top"><th scope="row">Customize group email button text</th><td><input type="text" name="sf_set[rsp]" placeholder="disabled" value="'.(empty($set['rsp'])?'Request Quotes':$set['rsp']).'" /></td></tr>'
+		.'<tr valign="top"><th scope="row">Customize options button text</th><td><input type="text" name="sf_set[adv]" placeholder="disabled" value="'.(isset($set['adv'])?$set['adv']:'Options').'" /></td></tr>'
+		.'<tr valign="top"><th scope="row">Customize group email button text</th><td><input type="text" name="sf_set[rsp]" placeholder="disabled" value="'.(isset($set['rsp'])?$set['rsp']:'Request Quotes').'" /></td></tr>'
 		.'<tr valign="top"><th scope="row">Disable social share buttons</th><td><input type="checkbox" name="sf_set[scl]"'.(empty($set['scl'])?'':' checked="1"').' /></td></tr>'
 		.'<tr valign="top"><th scope="row">Load js/css inline</th><td><input type="checkbox" name="sf_set[htm]"'.(empty($set['htm'])?'':' checked="1"').' /></td></tr>'
 		.'</table>'
@@ -76,7 +77,7 @@ function sf_admin_options() {
 function sf_admin_validate($in) {
 	$out=array();
 	$out['org']=intval($in['org']);
-	$out['org']=($in['org']?strval($in['org']):'');
+	$out['org']=($out['org']?strval($in['org']):'');
 	$out['fbk']=trim($in['fbk']);
 	$out['map']=trim($in['map']);
 	$out['fnd']=trim($in['fnd']);
@@ -84,6 +85,7 @@ function sf_admin_validate($in) {
 	$out['rsp']=trim($in['rsp']);
 	if (!empty($in['scl'])) $out['scl']='1';
 	if (!empty($in['htm'])) $out['htm']='1';
+	if (!empty($in['ctc'])) $out['ctc']='1';
 	return $out;
 }
 
@@ -229,13 +231,14 @@ function sf_shortcode($content) {
 					.(empty($set['pay'])?'':(' data-pay="'.$set['pay'].'"'))
 					.(empty($set['fbk'])?'':(' data-fbk="'.$set['fbk'].'"'))
 					.(empty($set['fnd'])?'':(' data-fnd="'.$set['fnd'].'"'))
-					.(empty($set['adv'])?'':(' data-adv="'.$set['adv'].'"'))
+					.(isset($set['adv'])?(' data-adv="'.$set['adv'].'"'):'')
 					.(empty($set['rsp'])?'':(' data-rsp="'.$set['rsp'].'"'))
-					.(empty($set['wpl'])?'':(' data-wpl="'.esc_url($set['wpl']).'"'))
+					.(empty($set['ctc'])?'':(' data-ctc="1"'))
 					.(empty($set['scl'])&&empty($opt['noshare'])?'':(' data-scl="0"'))
+					.(empty($set['wpl'])?'':(' data-wpl="'.esc_url($set['wpl']).'"'))
 					.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
 					.' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
-					.'<div id="SFpne" style="position:relative;"><div class="SFpne">'.(isset($opt['ini'])&&$opt['ini']=='0'?'':'Loading...').'</div></div>'
+					.'<div id="SFpne" style="position:relative;">'.(isset($opt['ini'])&&$opt['ini']=='0'?'':'<div class="SFpne">Loading...</div>').'</div>'
 					.'<div style="clear:both;"></div>'
 					.(empty($set['htm'])?'':'<script type="text/javascript" src="//mfm-sourcefoundinc.netdna-ssl.com/'.(isset($opt['ini'])&&$opt['ini']=='0'?'mfm':'mfi').'.js" defer="defer"></script>')
 					.'</div>';
@@ -256,7 +259,7 @@ function sf_shortcode($content) {
 				.(isset($opt['type'])&&$opt['type']=='img'&&isset($opt['src'])?(' src="'.$opt['src'].'"'):'')
 				.(isset($opt['class'])?(' class="'.$opt['class'].'"'):'')
 				.(isset($opt['style'])?(' style="'.$opt['style'].'"'):' style="cursor:pointer;"')
-				.(isset($opt['type'])&&$opt['type']!='a'?(' onclick="SF.init();SF.open(\'account/join/'.$opt['join'].'">'):(' onclick="SF.init();" href="#account/join/'.$opt['join'].'">'))
+				.(isset($opt['type'])&&$opt['type']!='a'?(' onclick="window.location.hash=\'account/join/'.$opt['join'].'\';SF.init();">'):(' onclick="SF.init(true)" href="#account/join/'.$opt['join'].'">'))
 				.(isset($opt['text'])?$opt['text']:'Join')
 				.(isset($opt['type'])?($opt['type']=='img'?'':('</'.$opt['type'].'>')):'</a>');
 		} else
@@ -314,14 +317,14 @@ class sf_widget_event extends WP_Widget {
 
 class sf_widget_folder extends WP_Widget {
 	public function __construct() {
-		parent::__construct('sf_widget_folder','MemberFindMe Folder',array('description'=>'Display contacts from your public MemberFindMe folder'));
+		parent::__construct('sf_widget_folder','MemberFindMe Widget',array('description'=>'Display contacts from your public MemberFindMe folder or label'));
 	}
 	public function widget($args,$instance ) {
 		extract($args);
 		$set=get_option('sf_set');
 		for ($try=0,$rsp=false;$rsp===false&&$try<3;$try++) {
 			if ($try) usleep(100000);
-			$rsp=@file_get_contents("http://www.sourcefound.com/api?fi=dek&org=".$set['org']."&wem=1&lbl=".urlencode($instance['lbl']));
+			$rsp=@file_get_contents("http://www.sourcefound.com/api?fi=dek&org=".$set['org']."&typ=".(empty($instance['typ'])?'1':$instance['typ'])."&wem=1&lbl=".urlencode($instance['lbl']));
 		}
 		if (!$rsp) return;
 		$dat=json_decode($rsp,true);
@@ -359,23 +362,25 @@ class sf_widget_folder extends WP_Widget {
 		$instance=$old_instance;
 		$instance['title']=strip_tags($new_instance['title']);
 		$instance['lbl']=trim($new_instance['lbl']);
+		$instance['typ']=strval(intval($new_instance['typ']));
 		$instance['act']=strval(intval($new_instance['act']));
 		$instance['delay']=strval(intval($new_instance['delay']));
 		return $instance;
 	}
 	public function form($instance) {
-		$instance=wp_parse_args($instance,array('title'=>'','lbl'=>'','act'=>'0','delay'=>'10'));
+		$instance=wp_parse_args($instance,array('title'=>'','typ'=>'1','lbl'=>'','act'=>'0','delay'=>'10'));
 		$title=strip_tags($instance['title']);
-		$lbl=$instance['lbl'];
-		$act=$instance['act'];
-		$delay=$instance['delay'];
-		echo '<p><label for="'.$this->get_field_id('title').'">Title:</label> <input class="widefat" id="'.$this->get_field_id('title').'" name="'.$this->get_field_name('title').'" type="text" value="'.esc_attr($title).'" /></p>';
-		echo '<p><label for="'.$this->get_field_id('lbl').'">Folder name:</label> <input class="widefat" id="'.$this->get_field_id('lbl').'" name="'.$this->get_field_name('lbl').'" type="text" value="'.esc_attr($lbl).'" /></p>';
-		echo '<p><label for="'.$this->get_field_id('act').'">Display:</label> <select id="'.$this->get_field_id('act').'" name="'.$this->get_field_name('act').'" onchange="this.parentNode.nextSibling.style.display=(this.value==\'1\'?\'\':\'none\');">'
-				.'<option value="0"'.($act=='0'?' selected="selected"':'').'>List</option>'
-				.'<option value="1"'.($act=='1'?' selected="selected"':'').'>Slideshow</option>'
-			.'</select></p>';
-		echo '<p'.($act=='1'?'':' style="display:none;"').'><label for="'.$this->get_field_id('delay').'">Seconds between slides:</label> <input id="'.$this->get_field_id('delay').'" name="'.$this->get_field_name('delay').'" type="text" value="'.$delay.'" size="3"/></p>';
+		echo '<p><label for="'.$this->get_field_id('title').'">Title:</label> <input class="widefat" id="'.$this->get_field_id('title').'" name="'.$this->get_field_name('title').'" type="text" value="'.esc_attr($title).'" /></p>'
+			.'<p><label for="'.$this->get_field_id('lbl').'">Folder/label name:</label> <input class="widefat" id="'.$this->get_field_id('lbl').'" name="'.$this->get_field_name('lbl').'" type="text" value="'.esc_attr($instance['lbl']).'" /></p>'
+			.'<p><label for="'.$this->get_field_id('typ').'">Type:</label> <select id="'.$this->get_field_id('typ').'" name="'.$this->get_field_name('typ').'">'
+				.'<option value="1"'.($instance['typ']=='1'?' selected="selected"':'').'>Public folder</option>'
+				.'<option value="3"'.($instance['typ']=='3'?' selected="selected"':'').'>Publicly searchable label</option>'
+			.'</select></p>'
+			.'<p><label for="'.$this->get_field_id('act').'">Display:</label> <select id="'.$this->get_field_id('act').'" name="'.$this->get_field_name('act').'" onchange="this.parentNode.nextSibling.style.display=(this.value==\'1\'?\'\':\'none\');">'
+				.'<option value="0"'.($instance['act']=='0'?' selected="selected"':'').'>List</option>'
+				.'<option value="1"'.($instance['act']=='1'?' selected="selected"':'').'>Slideshow</option>'
+			.'</select></p>'
+			.'<p'.($instance['act']=='1'?'':' style="display:none;"').'><label for="'.$this->get_field_id('delay').'">Seconds between slides:</label> <input id="'.$this->get_field_id('delay').'" name="'.$this->get_field_name('delay').'" type="text" value="'.$instance['delay'].'" size="3"/></p>';
 	}
 }
 
