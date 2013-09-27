@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.6.2
+Version: 1.6.3
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -75,18 +75,17 @@ function sf_admin_options() {
 }
 
 function sf_admin_validate($in) {
-	$out=array();
-	$out['org']=intval($in['org']);
-	$out['org']=($out['org']?strval($in['org']):'');
-	$out['fbk']=trim($in['fbk']);
-	$out['map']=trim($in['map']);
-	$out['fnd']=trim($in['fnd']);
-	$out['adv']=trim($in['adv']);
-	$out['rsp']=trim($in['rsp']);
-	if (!empty($in['scl'])) $out['scl']='1';
-	if (!empty($in['htm'])) $out['htm']='1';
-	if (!empty($in['ctc'])) $out['ctc']='1';
-	return $out;
+	$in['org']=intval($in['org']);
+	$in['org']=($in['org']?strval($in['org']):'');
+	$in['fbk']=trim($in['fbk']);
+	$in['map']=trim($in['map']);
+	$in['fnd']=trim($in['fnd']);
+	$in['adv']=trim($in['adv']);
+	$in['rsp']=trim($in['rsp']);
+	if (!empty($in['scl'])) $in['scl']='1'; else unset($in['scl']);
+	if (!empty($in['htm'])) $in['htm']='1'; else unset($in['htm']);
+	if (!empty($in['ctc'])) $in['ctc']='1'; else unset($in['ctc']);
+	return $in;
 }
 
 function sf_admin_page() {
