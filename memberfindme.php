@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.6.3
+Version: 1.7
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -29,7 +29,6 @@ global $sf_dat;
 $sf_dat=false;
 
 function sf_admin_menu() {
-	add_options_page('MemberFindMe Settings','MemberFindMe','manage_options','sf_admin_options','sf_admin_options');
 	add_menu_page('MemberFindMe Admin','MemberFindMe','add_users','sf_admin_page','sf_admin_page','','2.1');
 	add_submenu_page('sf_admin_page','Members','Members','add_users','sf_admin_members','sf_admin_page');
 	add_submenu_page('sf_admin_page','Labels','Labels &amp; Membership','add_users','sf_admin_labels','sf_admin_page');
@@ -39,6 +38,7 @@ function sf_admin_menu() {
 	add_submenu_page('sf_admin_page','Help','Help','add_users','sf_admin_help','sf_admin_page');
 	add_submenu_page('sf_admin_page','Customization','Customization','add_users','sf_admin_custom','sf_admin_page');
 	add_submenu_page('sf_admin_page','Account Settings','Account Settings','add_users','sf_admin_account','sf_admin_page');
+	add_submenu_page('sf_admin_page','Plugin Settings','Plugin Settings','add_users','sf_admin_options','sf_admin_options');
 }
 
 function sf_admin_init() {
@@ -54,22 +54,22 @@ function sf_admin_options() {
 	if (!current_user_can('manage_options'))  {
 		wp_die(__('You do not have sufficient permissions to access this page.'));
 	}
-	echo '<div class="wrap"><h2>MemberFindMe Settings</h2>'
+	echo '<div class="wrap"><h2>MemberFindMe Plugin Settings</h2>'
 		.'<form action="options.php" method="post">';
 	settings_fields("sf_admin_group");
 	$set=get_option('sf_set');
 	echo '<table class="form-table">'
-		.'<tr valign="top"><th scope="row">MemberFindMe organization key</th><td><input type="text" name="sf_set[org]" value="'.(isset($set['org'])?$set['org']:'').'" /></td></tr>'
+		.'<tr valign="top"><th scope="row">MemberFindMe Organization ID</th><td><input type="text" name="sf_set[org]" value="'.(isset($set['org'])?$set['org']:'').'" /></td></tr>'
 		.'<tr valign="top"><th scope="row">Facebook API key (optional)</th><td><input type="text" name="sf_set[fbk]" value="'.(isset($set['fbk'])?$set['fbk']:'').'" /></td></tr>'
 		.'<tr valign="top"><th scope="row">Google Maps API key (optional)</th><td><input type="text" name="sf_set[map]" value="'.(isset($set['map'])?$set['map']:'').'" /></td></tr>'
-		.'<tr valign="top"><th scope="row">Show contact name in directory</th><td><input type="checkbox" name="sf_set[ctc]"'.(empty($set['ctc'])?'':' checked="1"').' /></td></tr>'
-		.'<tr valign="top"><th scope="row">Customize search button text</th><td><input type="text" name="sf_set[fnd]" value="'.(empty($set['fnd'])?'Search':$set['fnd']).'" /></td></tr>'
-		.'<tr valign="top"><th scope="row">Customize options button text</th><td><input type="text" name="sf_set[adv]" placeholder="disabled" value="'.(isset($set['adv'])?$set['adv']:'Options').'" /></td></tr>'
-		.'<tr valign="top"><th scope="row">Customize group email button text</th><td><input type="text" name="sf_set[rsp]" placeholder="disabled" value="'.(isset($set['rsp'])?$set['rsp']:'Request Quotes').'" /></td></tr>'
+		.'<tr valign="top"><th scope="row">Display contact name on cards in directory</th><td><input type="checkbox" name="sf_set[ctc]"'.(empty($set['ctc'])?'':' checked="1"').' /></td></tr>'
+		.'<tr valign="top"><th scope="row">Customize text for directory search button</th><td><input type="text" name="sf_set[fnd]" value="'.(empty($set['fnd'])?'Search':$set['fnd']).'" /></td></tr>'
+		.'<tr valign="top"><th scope="row">Customize text for directory search options button</th><td><input type="text" name="sf_set[adv]" placeholder="disabled" value="'.(isset($set['adv'])?$set['adv']:'Options').'" /></td></tr>'
+		.'<tr valign="top"><th scope="row">Customize text for directory group email button</th><td><input type="text" name="sf_set[rsp]" placeholder="disabled" value="'.(isset($set['rsp'])?$set['rsp']:'').'" /></td></tr>'
 		.'<tr valign="top"><th scope="row">Disable social share buttons</th><td><input type="checkbox" name="sf_set[scl]"'.(empty($set['scl'])?'':' checked="1"').' /></td></tr>'
 		.'<tr valign="top"><th scope="row">Load js/css inline</th><td><input type="checkbox" name="sf_set[htm]"'.(empty($set['htm'])?'':' checked="1"').' /></td></tr>'
 		.'</table>'
-		.'<input type="hidden" name="sf_set[wpl]" value="'.(isset($set['wpl'])?$set['wpl']:'').'" />'
+		.(empty($set['wpl'])?'':('<input type="hidden" name="sf_set[wpl]" value="'.$set['wpl'].'" />'))
 		.'<p class="submit"><input type="submit" name="submit" id="submit" class="button-primary" value="Save Changes"></p>'
 		.'</form></div>';
 }
@@ -77,15 +77,15 @@ function sf_admin_options() {
 function sf_admin_validate($in) {
 	$in['org']=intval($in['org']);
 	$in['org']=($in['org']?strval($in['org']):'');
-	$in['fbk']=trim($in['fbk']);
-	$in['map']=trim($in['map']);
-	$in['fnd']=trim($in['fnd']);
-	$in['adv']=trim($in['adv']);
-	$in['rsp']=trim($in['rsp']);
+	if (!empty($in['fbk'])) $in['fbk']=trim($in['fbk']);
+	if (!empty($in['map'])) $in['map']=empty($in['map'])?'':trim($in['map']);
+	if (!empty($in['fnd'])) $in['fnd']=trim($in['fnd']);
+	if (isset($in['adv'])) $in['adv']=trim($in['adv']);
+	if (!empty($in['rsp'])) $in['rsp']=trim($in['rsp']);
 	if (!empty($in['scl'])) $in['scl']='1'; else unset($in['scl']);
 	if (!empty($in['htm'])) $in['htm']='1'; else unset($in['htm']);
 	if (!empty($in['ctc'])) $in['ctc']='1'; else unset($in['ctc']);
-	return $in;
+	return $in; // preserve other fields for $in including wpl
 }
 
 function sf_admin_page() {
@@ -102,8 +102,7 @@ function sf_admin_page() {
 		case 'account': 	$ini='account/manage'; $hme='account'; break;
 		default:			$ini='dashboard'; $hme='dashboard'; break;
 	}
-	echo '<div id="SFctr" class="SF" data-org="10000" data-hme="'.$hme.'" data-ini="'.$ini.'" data-typ="org" data-wpo="options.php"'
-		.' style="position:relative;padding:30px 20px 20px;"></div>'
+	echo '<div id="SFctr" class="SF" data-org="10000" data-hme="'.$hme.'" data-ini="'.$ini.'" data-typ="org" data-wpo="options.php" style="position:relative;padding:30px 20px 20px;"></div>'
 		.'<script>function sf_admin(){'
 			.'var t=document.getElementById("toplevel_page_sf_admin_page");'
 			.'if (!t) return;'
@@ -111,7 +110,8 @@ function sf_admin_page() {
 			.'for(i=0;n=a[i];i++){'
 				.'x=n.href.split("sf_admin_")[1];'
 				.'n.parentNode.className="";'
-				.'if (x=="page"){n.innerHTML="Dashboard";n.parentNode.id="SFhdrdbd";n.href="#dashboard";}'
+				.'if (x=="options") continue;'
+				.'else if (x=="page"){n.innerHTML="Dashboard";n.parentNode.id="SFhdrdbd";n.href="#dashboard";}'
 				.'else if (x=="members"){n.parentNode.id="SFhdrdem";n.href="#folder/Members";}'
 				.'else if (x=="labels"){n.parentNode.id="SFhdrlbl";n.href="#labels";}'
 				.'else if (x=="folders"){n.parentNode.id="SFhdrdek";n.href="#folders";}'
@@ -124,6 +124,11 @@ function sf_admin_page() {
 		.'}sf_admin();</script>'
 		.'<script type="text/javascript" src="//mfm-sourcefoundinc.netdna-ssl.com/all.js"></script>'
 		.'<script>SF.init();</script>';
+	if ($set===false||empty($set['org'])) {
+		echo '<form id="SFwpo" style="display:none" action="options.php" method="post">';
+		settings_fields("sf_admin_group");
+		echo '</form>';
+	}
 }
 
 function sf_scripts() {
@@ -163,12 +168,12 @@ function sf_title($ttl,$sep,$loc) {
 			$pne=$mat[2];
 		else
 			return $ttl;
-		for ($try=0,$rsp=false;$rsp===false&&$try<3;$try++) {
-			if ($try) usleep(100000);
-			$rsp=@file_get_contents("http://www.sourcefound.com/api?hdr&dtl&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($pne)); 
-		}
-		if (!$rsp) return $ttl;
-		$sf_dat=json_decode($rsp,true);
+		do {
+			if (empty($try)) $try=0; else usleep(100000);
+			$rsp=wp_remote_get("http://www.sourcefound.com/api?hdr&dtl&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($pne));
+		} while (is_wp_error($rsp)&&($try++)<3);
+		if (is_wp_error($rsp)||empty($rsp['body'])) return $ttl;
+		$sf_dat=json_decode($rsp['body'],true);
 		$sf_dat['set']=$set;
 		if (!isset($sf_dat['ttl'])||!$sf_dat['ttl']) return $ttl;
 		return ($loc=='left'?($ttl." $sep "):'').$sf_dat['ttl'].($loc=='right'?(" $sep ".$ttl):'');
@@ -212,9 +217,10 @@ function sf_shortcode($content) {
 		if (($x>0&&substr($content,$x-1,1)=='[')||$y===false) continue; // escaped shortcode or shortcode not closed
 		$mat=array();
 		if (!preg_match_all('/\s([a-z]*)="([^"]*)"/',substr($content,$x+1,$y-$x-1),$mat,PREG_PATTERN_ORDER)) continue;
+		$opt=array();
 		foreach ($mat[1] as $key=>$val) $opt[$val]=$mat[2][$key];
 		// create output
-		if (!isset($set['org'])||!$set['org']) {
+		if ($set===false||empty($set['org'])) {
 			$out=(isset($opt['open'])&&!$mfm?'<div>MemberFindMe organization key not setup. Please update settings.</div>':'');
 		} else if (isset($opt['open'])) {
 			if ($mfm) {
@@ -234,7 +240,7 @@ function sf_shortcode($content) {
 					.(empty($set['rsp'])?'':(' data-rsp="'.$set['rsp'].'"'))
 					.(empty($set['ctc'])?'':(' data-ctc="1"'))
 					.(empty($set['scl'])&&empty($opt['noshare'])?'':(' data-scl="0"'))
-					.(empty($set['wpl'])?'':(' data-wpl="'.esc_url($set['wpl']).'"'))
+					.(empty($set['wpl'])?(defined('SF_WPL')?' data-wpl="'.esc_url(preg_replace('/^http[s]?:\\/\\/[^\\/]*/','',site_url('wp-login.php','login_post'))).'"':''):(' data-wpl="'.esc_url($set['wpl']).'"'))
 					.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
 					.' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
 					.'<div id="SFpne" style="position:relative;">'.(isset($opt['ini'])&&$opt['ini']=='0'?'':'<div class="SFpne">Loading...</div>').'</div>'
@@ -276,12 +282,12 @@ class sf_widget_event extends WP_Widget {
 	public function widget($args,$instance ) {
 		extract($args);
 		$set=get_option('sf_set');
-		for ($try=0,$rsp=false;$rsp===false&&$try<3;$try++) {
-			if ($try) usleep(100000);
-			$rsp=@file_get_contents("http://www.sourcefound.com/api?fi=evt&org=".$set['org']."&wee=1&grp=".$instance['grp']."&cnt=".$instance['cnt']."&sdp=".time());
-		}
-		if (!$rsp) return;
-		$dat=json_decode($rsp,true);
+		do {
+			if (empty($try)) $try=0; else usleep(100000);
+			$rsp=wp_remote_get("http://www.sourcefound.com/api?fi=evt&org=".$set['org']."&wee=1&grp=".$instance['grp']."&cnt=".$instance['cnt']."&sdp=".time());
+		} while (is_wp_error($rsp)&&($try++)<3);
+		if (is_wp_error($rsp)||empty($rsp['body'])) return;
+		$dat=json_decode($rsp['body'],true);
 		$title=apply_filters('widget_title',$instance['title']);
 		echo $before_widget;
 		if (!empty($title))
@@ -321,12 +327,12 @@ class sf_widget_folder extends WP_Widget {
 	public function widget($args,$instance ) {
 		extract($args);
 		$set=get_option('sf_set');
-		for ($try=0,$rsp=false;$rsp===false&&$try<3;$try++) {
-			if ($try) usleep(100000);
-			$rsp=@file_get_contents("http://www.sourcefound.com/api?fi=dek&org=".$set['org']."&typ=".(empty($instance['typ'])?'1':$instance['typ'])."&wem=1&lbl=".urlencode($instance['lbl']));
-		}
-		if (!$rsp) return;
-		$dat=json_decode($rsp,true);
+		do {
+			if (empty($try)) $try=0; else usleep(100000);
+			$rsp=wp_remote_get("http://www.sourcefound.com/api?fi=dek&org=".$set['org']."&typ=".(empty($instance['typ'])?'1':$instance['typ'])."&wem=1&lbl=".urlencode($instance['lbl']));
+		} while (is_wp_error($rsp)&&($try++)<3);
+		if (is_wp_error($rsp)||empty($rsp['body'])) return;
+		$dat=json_decode($rsp['body'],true);
 		$title=apply_filters('widget_title',$instance['title']);
 		if (empty($title))
 			echo str_replace('widget_sf_widget_folder','widget_sf_widget_folder widget_no_title',$before_widget);

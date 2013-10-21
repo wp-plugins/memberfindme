@@ -1,10 +1,10 @@
 === Plugin Name ===
 Contributors: sourcefound
 Donate link: http://memberfind.me
-Tags: memberfindme, event calendar, event registration, member directory, business directory, membership management, billing, stripe, paypal, quickbooks
+Tags: memberfindme, event, event calendar, calendar, event registration, event tickets, member directory, business directory, business listings, directory, membership management, membership, billing, stripe, paypal, quickbooks
 Requires at least: 3.0
-Tested up to: 3.5.2
-Stable tag: 1.6.3
+Tested up to: 3.6.1
+Stable tag: 1.7
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,24 +16,29 @@ Membership manangement, event system and member directory for groups and organiz
 
 This plugin integrates MemberFindMe member management, event system and member directory to your Wordpress site. MemberFindMe subscription is required (free for under 50 members).
 
-**[Member Management](http://memberfind.me/member-management/)**
+= [Membership Management](http://memberfind.me/member-management/) =
 
-* Dashboard allows you to see statistics, signups, renewals, event registrations in one place.
-* Labels to organize your members by membership levels, committees and more.
+* Dashboard allows you to see statistics, signups, renewals, event registrations in one place
+* Labels to organize your members by membership levels, committees and more
 * Member Timeline (CRM) allows you to see a member's history at a glance
-* Automated recurring billing using [Stripe](http://stripe.com) or [Paypal](https://paypal.com)
+* Multiple contacts or locations can be stored under a member account
+* Attach labels to contacts under a member account
+* Billing with [Stripe](http://stripe.com) or [Paypal](https://paypal.com)
 * One-page checkout reduces checkout abandonment
 * Members can manage their billing, deals and profile online
 * Financial dashboard charts your financial health
 * Export membership and financial data to a spreadsheet
 * Export invoices, payments and fees to QuickBooks
 * Group email members
+* Custom fields
+* Customize signup and account manage forms
 * Enterprise grade security & triple redundancy
 
-**[Event System](http://memberfind.me/event-system/)**
+= [Event System](http://memberfind.me/event-system/) =
 
 * Infinitely scrolling calendar promotes discovery and reduces friction
 * Color coded events on calendar
+* Event categories
 * Collect payments on-page through [Stripe](http://stripe.com) or [Paypal](https://paypal.com)
 * One-page event registration reduces checkout abandonment
 * Automatic event registration confirmation email with iCalendar attachment (works with Outlook, gmail, etc)
@@ -41,8 +46,12 @@ This plugin integrates MemberFindMe member management, event system and member d
 * Create multiple tickets
 * Create free tickets
 * Limit ticket and/or event capacity
+* Limit tickets per registration
+* Customize confirmation email
+* Registration notification emails
 * Group email event attendees with updates
 * Cancel and refund a single registration, or the entire event
+* Edit registrations and issue partial refunds
 * Download registration information to a spreadsheet
 * Export event invoices, payments and fees to QuickBooks
 * Check-in attendees
@@ -51,19 +60,21 @@ This plugin integrates MemberFindMe member management, event system and member d
 * SEO optimized with Rich Snippets
 * Upcoming events widget
 
-**[Members Directory](http://memberfind.me/members-directory/)**
+= [Members Directory](http://memberfind.me/members-directory/) =
 
-* Smart directory search delivers more relevant search results
-* Interactive map view for directory
+* Smart keyword search delivers more relevant search results
+* Search by area or by labels/categories
+* Interactive map view
 * Business card motif allows your members to express their identity
 * Rich member profiles with logos, pictures, map, social media links and more
 * Create member deals or offers
-* Hide and protect member emails from spam with our messaging system
+* Comply with CAN-SPAM act and protect member emails from spam with our messaging system
 * Generate leads with user recommendations
 * Share and email member profiles
+* Customize profile template
 * SEO optimized with Rich Snippets
 * Member slideshow widget
-* Aggregated deals page
+* Deals page
 
 == Installation ==
 
