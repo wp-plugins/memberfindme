@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.7
+Version: 1.7.1
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -241,6 +241,7 @@ function sf_shortcode($content) {
 					.(empty($set['ctc'])?'':(' data-ctc="1"'))
 					.(empty($set['scl'])&&empty($opt['noshare'])?'':(' data-scl="0"'))
 					.(empty($set['wpl'])?(defined('SF_WPL')?' data-wpl="'.esc_url(preg_replace('/^http[s]?:\\/\\/[^\\/]*/','',site_url('wp-login.php','login_post'))).'"':''):(' data-wpl="'.esc_url($set['wpl']).'"'))
+					.(empty($opt['lbl'])?'':(' data-lbl="'.$opt['lbl'].'"'))
 					.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
 					.' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
 					.'<div id="SFpne" style="position:relative;">'.(isset($opt['ini'])&&$opt['ini']=='0'?'':'<div class="SFpne">Loading...</div>').'</div>'
@@ -267,6 +268,20 @@ function sf_shortcode($content) {
 				.(isset($opt['type'])&&$opt['type']!='a'?(' onclick="window.location.hash=\'account/join/'.$opt['join'].'\';SF.init();">'):(' onclick="SF.init(true)" href="#account/join/'.$opt['join'].'">'))
 				.(isset($opt['text'])?$opt['text']:'Join')
 				.(isset($opt['type'])?($opt['type']=='img'?'':('</'.$opt['type'].'>')):'</a>');
+		} else if (isset($opt['listlabel'])||isset($opt['listfolder'])) {
+			do {
+				if (empty($try)) $try=0; else usleep(100000);
+				$rsp=wp_remote_get("http://www.sourcefound.com/api?fi=dek&org=".$set['org']."&typ=".(isset($opt['listlabel'])?3:1)."&wem=1&lbl=".urlencode(isset($opt['listlabel'])?$opt['listlabel']:$opt['listfolder']));
+			} while (is_wp_error($rsp)&&($try++)<3);
+			if (is_wp_error($rsp)||empty($rsp['body'])) {
+				$out='test';
+			} else {
+				$dat=json_decode($rsp['body'],true);
+				$out=array();
+				foreach ($dat as $usr)
+					$out[]='<li><a href="'.esc_attr($usr['url']).'">'.esc_html($usr['nam']).'</a></li>';
+				$out='<ul class="sf_list">'.implode('',$out).'</ul>';
+			}
 		} else
 			$out='';
 		$content=substr_replace($content,$out,$x,$y-$x+1);
