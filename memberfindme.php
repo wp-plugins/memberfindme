@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.7.1
+Version: 1.7.2
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -229,7 +229,7 @@ function sf_shortcode($content) {
 				$out='<div id="SFctr" class="SF" style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
 					.'<div id="SFpne" style="position:relative;">'.$sf_dat['dtl'].'</div><div style="clear:both;"></div></div>';
 			} else {
-				$out=(empty($set['htm'])?'':'<script>if (typeof(SF)=="object"&&SF.close) SF.close();</script>')
+				$out=(empty($set['htm'])?'':'<div style="display:none"><script>if (typeof(SF)=="object"&&SF.close) SF.close();</script></div>')
 					.'<div id="SFctr" class="SF" data-ini="'.$opt['open'].'"'
 					.(strpos($opt['open'],'account')===0?'':(' data-hme="'.$opt['open'].'"'))
 					.(empty($set['org'])?'':(' data-org="'.$set['org'].'"'))
@@ -242,6 +242,7 @@ function sf_shortcode($content) {
 					.(empty($set['scl'])&&empty($opt['noshare'])?'':(' data-scl="0"'))
 					.(empty($set['wpl'])?(defined('SF_WPL')?' data-wpl="'.esc_url(preg_replace('/^http[s]?:\\/\\/[^\\/]*/','',site_url('wp-login.php','login_post'))).'"':''):(' data-wpl="'.esc_url($set['wpl']).'"'))
 					.(empty($opt['lbl'])?'':(' data-lbl="'.$opt['lbl'].'"'))
+					.(empty($opt['evg'])?'':(' data-evg="'.$opt['evg'].'"'))
 					.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
 					.' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
 					.'<div id="SFpne" style="position:relative;">'.(isset($opt['ini'])&&$opt['ini']=='0'?'':'<div class="SFpne">Loading...</div>').'</div>'

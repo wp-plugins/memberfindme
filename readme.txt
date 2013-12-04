@@ -3,8 +3,8 @@ Contributors: sourcefound
 Donate link: http://memberfind.me
 Tags: memberfindme, event, event calendar, calendar, event registration, event tickets, member directory, business directory, business listings, directory, membership management, membership, billing, stripe, paypal, quickbooks
 Requires at least: 3.0
-Tested up to: 3.6.1
-Stable tag: 1.7.1
+Tested up to: 3.7
+Stable tag: 1.7.2
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,9 +14,9 @@ Membership manangement, event system and member directory for groups and organiz
 
 [MemberFindMe](http://memberfind.me/) is a comprehensive website, membership management and event management solution for small to mid-sized chambers, professional groups, associations and other membership organizations. Create a smarter, more interactive website that features your members, promotes your events, provides membership and event registration/billing, and organizes your membership information.
 
-This plugin integrates MemberFindMe member management, event system and member directory to your Wordpress site. MemberFindMe subscription is required (free for under 50 members).
+This plugin integrates MemberFindMe [membership management](http://memberfind.me/member-management/), [event system](http://memberfind.me/event-system/) and [directory](http://memberfind.me/members-directory/) to your Wordpress site. MemberFindMe subscription is required (free for under 50 members).
 
-= [Membership Management](http://memberfind.me/member-management/) =
+= Membership Management =
 
 * Dashboard allows you to see statistics, signups, renewals, event registrations in one place
 * Labels to organize your members by membership levels, committees and more
@@ -34,7 +34,7 @@ This plugin integrates MemberFindMe member management, event system and member d
 * Customize signup and account manage forms
 * Enterprise grade security & triple redundancy
 
-= [Event System](http://memberfind.me/event-system/) =
+= Event System =
 
 * Infinitely scrolling calendar promotes discovery and reduces friction
 * Color coded events on calendar
@@ -60,7 +60,7 @@ This plugin integrates MemberFindMe member management, event system and member d
 * SEO optimized with Rich Snippets
 * Upcoming events widget
 
-= [Members Directory](http://memberfind.me/members-directory/) =
+= Directory =
 
 * Smart keyword search delivers more relevant search results
 * Search by area or by labels/categories
@@ -92,6 +92,7 @@ This plugin requires a MemberFindMe subscription. Please visit [MemberFindMe](ht
 
 * Member directory: \[memberfindme open="!directory"\]
 * Member directory with map: \[memberfindme open="!directory/map"\]
+* Deals page: \[memberfindme open="!deals"\]
 * Event calendar: \[memberfindme open="!calendar"\]
 * Event list: \[memberfindme open="!event-list"\]
 * New member signup: \[memberfindme open="account/join"\]
@@ -139,3 +140,6 @@ This plugin requires a MemberFindMe subscription. Please visit [MemberFindMe](ht
 = 1.7.1 =
 * Adds listlabel and listfolder shortcodes
 * Adds support for label specific directory
+
+= 1.7.2 =
+* Adds support for group specific event calendar
