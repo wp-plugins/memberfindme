@@ -242,7 +242,7 @@ function sf_shortcode($content) {
 					.(empty($set['scl'])&&empty($opt['noshare'])?'':(' data-scl="0"'))
 					.(empty($set['wpl'])?(defined('SF_WPL')?' data-wpl="'.esc_url(preg_replace('/^http[s]?:\\/\\/[^\\/]*/','',site_url('wp-login.php','login_post'))).'"':''):(' data-wpl="'.esc_url($set['wpl']).'"'))
 					.(empty($opt['lbl'])?'':(' data-lbl="'.$opt['lbl'].'"'))
-					.(isset($opt['evg'])?'':(' data-evg="'.$opt['evg'].'"'))
+					.(isset($opt['evg'])?(' data-evg="'.$opt['evg'].'"'):'')
 					.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
 					.' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
 					.'<div id="SFpne" style="position:relative;">'.(isset($opt['ini'])&&$opt['ini']=='0'?'':'<div class="SFpne">Loading...</div>').'</div>'
