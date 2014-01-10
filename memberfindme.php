@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.7.3
+Version: 1.8
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -216,9 +216,9 @@ function sf_shortcode($content) {
 		$y=strpos($content,']',$x);
 		if (($x>0&&substr($content,$x-1,1)=='[')||$y===false) continue; // escaped shortcode or shortcode not closed
 		$mat=array();
-		if (!preg_match_all('/\s([a-z]*)="([^"]*)"/',substr($content,$x+1,$y-$x-1),$mat,PREG_PATTERN_ORDER)) continue;
+		if (!preg_match_all('/\s([a-z]*)(="[^"]*")?/',substr($content,$x+1,$y-$x-1),$mat,PREG_PATTERN_ORDER)) continue;
 		$opt=array();
-		foreach ($mat[1] as $key=>$val) $opt[$val]=$mat[2][$key];
+		foreach ($mat[1] as $key=>$val) $opt[$val]=empty($mat[2][$key])?'':substr($mat[2][$key],2,-1);
 		// create output
 		if ($set===false||empty($set['org'])) {
 			$out=(isset($opt['open'])&&!$mfm?'<div>MemberFindMe organization key not setup. Please update settings.</div>':'');
@@ -244,6 +244,7 @@ function sf_shortcode($content) {
 					.(empty($opt['lbl'])?'':(' data-lbl="'.$opt['lbl'].'"'))
 					.(isset($opt['evg'])?(' data-evg="'.$opt['evg'].'"'):'')
 					.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
+					.(isset($opt['redirect'])?(' data-zzz="'.$opt['redirect'].'"'):'')
 					.' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
 					.'<div id="SFpne" style="position:relative;">'.(isset($opt['ini'])&&$opt['ini']=='0'?'':'<div class="SFpne">Loading...</div>').'</div>'
 					.'<div style="clear:both;"></div>'
@@ -275,12 +276,30 @@ function sf_shortcode($content) {
 				$rsp=wp_remote_get("http://www.sourcefound.com/api?fi=dek&org=".$set['org']."&typ=".(isset($opt['listlabel'])?3:1)."&wem=1&lbl=".urlencode(isset($opt['listlabel'])?$opt['listlabel']:$opt['listfolder']));
 			} while (is_wp_error($rsp)&&($try++)<3);
 			if (is_wp_error($rsp)||empty($rsp['body'])) {
-				$out='test';
+				$out='MFM connection error';
 			} else {
 				$dat=json_decode($rsp['body'],true);
 				$out=array();
 				foreach ($dat as $usr)
 					$out[]='<li><a href="'.esc_attr($usr['url']).'">'.esc_html($usr['nam']).'</a></li>';
+				$out='<ul class="sf_list">'.implode('',$out).'</ul>';
+			}
+		} else if (isset($opt['listevents'])) {
+			do {
+				if (empty($try)) $try=0; else usleep(100000);
+				$rsp=wp_remote_get("http://www.sourcefound.com/api?fi=evt&org=".$set['org']."&wee=1&grp=".$opt['listevents']."&cnt=".(isset($opt['count'])?$opt['count']:'5')."&sdp=".time());
+			} while (is_wp_error($rsp)&&($try++)<3);
+			if (is_wp_error($rsp)||empty($rsp['body'])) {
+				$out='MFM connection error';
+			} else {
+				$dat=json_decode($rsp['body'],true);
+				$out=array();
+				foreach ($dat as $evt) {
+					$te=explode(',',$evt['ezp']);
+					$ts=explode(',',$evt['szp']);
+					if (!empty($evt['ezp'])&&$te[0]==$ts[0]) $evt['ezp']='- '.trim($te[1]);
+					$out[]='<li><a href="'.$evt['url'].'">'.esc_html($evt['ttl']).'</a><div class="event-when"><span class="event-start">'.$evt['szp'].'</span>'.(isset($evt['ezp'])&&$evt['ezp']?('<span class="event-end">'.$evt['ezp'].'</span>'):'').'</div></li>';
+				}
 				$out='<ul class="sf_list">'.implode('',$out).'</ul>';
 			}
 		} else
@@ -313,7 +332,7 @@ class sf_widget_event extends WP_Widget {
 			$te=explode(',',$x['ezp']);
 			$ts=explode(',',$x['szp']);
 			if (isset($x['ezp'])&&$x['ezp']&&$te[0]==$ts[0]) $x['ezp']='- '.trim($te[1]);
-			echo '<li><a href="'.$x['url'].'">'.esc_html($x['ttl']).'</a><div class="event-start">'.$x['szp'].(isset($x['ezp'])&&$x['ezp']?('</div><div class="event-end">'.$x['ezp'].'</div>'):'</div>').'</small></li>';
+			echo '<li><a href="'.$x['url'].'">'.esc_html($x['ttl']).'</a><div class="event-when"><span class="event-start">'.$x['szp'].'</span>'.(isset($x['ezp'])&&$x['ezp']?('<span class="event-end">'.$x['ezp'].'</span>'):'').'</div></li>';
 		}
 		echo '</ul>';
 		echo $after_widget;
