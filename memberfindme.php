@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.8
+Version: 1.8.1
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -392,7 +392,7 @@ class sf_widget_folder extends WP_Widget {
 		if ($instance['act']=='1'&&isset($x)&&$x) {
 			$delay=intval($instance['delay'])*1000;
 			echo '<script>'
-				.$fn.'_animate=function(){var r=document.getElementById("'.$this->id.'").querySelector(\'ul\'),x=r.querySelector(\'li[style*="table;"]\');if (x) {x.style.display="none";x=(x.nextSibling?x.nextSibling:r.firstChild);} else x=r.childNodes[Math.round(Math.random()*r.childNodes.length)];x.style.display="table";setTimeout('.$fn.'_animate,'.($delay?$delay:10000).');};'
+				.$fn.'_animate=function(){var r=document.getElementById("'.$this->id.'").querySelector(\'ul\'),x=r.querySelector(\'li[style*="table;"]\');if (x) {x.style.display="none";x=(x.nextSibling?x.nextSibling:r.firstChild);} else x=r.childNodes[Math.round(Math.random()*r.childNodes.length)];if (x) x.style.display="table";setTimeout('.$fn.'_animate,'.($delay?$delay:10000).');};'
 				.$fn.'_animate();'
 				.'</script>';
 		}
