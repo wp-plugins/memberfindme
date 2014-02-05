@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.8.1
+Version: 1.8.2
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -377,9 +377,9 @@ class sf_widget_folder extends WP_Widget {
 			echo $before_title.$title.$after_title;
 		if ($instance['act']=='1') {
 			$fn=str_replace('-','_',$this->id);
-			echo '<ul class="sf_widget_folder_logos" style="list-style:none;margin:0;padding:5px;">';
+			echo '<ul id="'.$this->id.'-list" class="sf_widget_folder_logos" style="list-style:none;margin:0;padding:5px;">';
 		} else
-			echo '<ul class="sf_widget_folder_list">';
+			echo '<ul id="'.$this->id.'-list" class="sf_widget_folder_list">';
 		foreach ($dat as $x) {
 			if ($instance['act']=='1')
 				echo '<li style="display:none;background-color:white;text-align:center;height:148px;padding:0;margin:0;table-layout:fixed;width:100%;"><a href="'.esc_attr($x['url']).'" style="display:table-cell;vertical-align:middle;padding:10px;text-decoration:none;"><div style="display:block;width:100%;font-size:1.5em;">'
@@ -392,7 +392,7 @@ class sf_widget_folder extends WP_Widget {
 		if ($instance['act']=='1'&&isset($x)&&$x) {
 			$delay=intval($instance['delay'])*1000;
 			echo '<script>'
-				.$fn.'_animate=function(){var r=document.getElementById("'.$this->id.'").querySelector(\'ul\'),x=r.querySelector(\'li[style*="table;"]\');if (x) {x.style.display="none";x=(x.nextSibling?x.nextSibling:r.firstChild);} else x=r.childNodes[Math.round(Math.random()*r.childNodes.length)];if (x) x.style.display="table";setTimeout('.$fn.'_animate,'.($delay?$delay:10000).');};'
+				.$fn.'_animate=function(){var r=document.getElementById("'.$this->id.'-list"),x=r.querySelector(\'li[style*="table;"]\');if (x) {x.style.display="none";x=(x.nextSibling?x.nextSibling:r.firstChild);} else x=r.childNodes[Math.round(Math.random()*r.childNodes.length)];if (x) x.style.display="table";setTimeout('.$fn.'_animate,'.($delay?$delay:10000).');};'
 				.$fn.'_animate();'
 				.'</script>';
 		}
