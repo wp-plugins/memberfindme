@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: MemberFindMe
+Plugin Name: MemberFindMe Membership, Events and Directory System
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
 Version: 1.8.2

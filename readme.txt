@@ -1,112 +1,185 @@
 === Plugin Name ===
 Contributors: sourcefound
 Donate link: http://memberfind.me
-Tags: memberfindme, event, event calendar, calendar, event registration, event tickets, member directory, business directory, business listings, directory, membership management, membership, billing, stripe, paypal, quickbooks
+Tags: memberfindme, event calendar, event tickets, directory, membership management, subscription, billing, stripe, paypal, quickbooks
 Requires at least: 3.0
 Tested up to: 3.8.1
 Stable tag: 1.8.2
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Membership manangement, event system and member directory for groups and organizations.
+All-in-one membership and subscription management, event calendar and ticketing, and member directory system for membership groups and organizations.
 
 == Description ==
 
-[MemberFindMe](http://memberfind.me/) is a comprehensive website, membership management and event management solution for small to mid-sized chambers, professional groups, associations and other membership organizations. Create a smarter, more interactive website that features your members, promotes your events, provides membership and event registration/billing, and organizes your membership information.
+[MemberFindMe](http://memberfind.me/) is a all-in-one membership management, subscription management, event calendar, event ticketing, and member directory solution for chambers of commerce, professional groups, associations and other membership groups.
 
-This plugin integrates MemberFindMe [membership management](http://memberfind.me/member-management/), [event system](http://memberfind.me/event-system/) and [directory](http://memberfind.me/members-directory/) to your Wordpress site. MemberFindMe subscription is required (free for under 50 members).
+This plugin integrates MemberFindMe membership, event and directory system to your Wordpress site. MemberFindMe account is required (free for under 50 members).
 
-= Membership Management =
+= Membership and Subscription Management =
 
-* Dashboard allows you to see statistics, signups, renewals, event registrations in one place
-* Labels to organize your members by membership levels, committees and more
+* Dashboard lets you to see membership metrics, member signups, member renewals, expired memberships, and event sales in one place
+* Labels lets you find members by committees, categories and more
 * Member Timeline (CRM) allows you to see a member's history at a glance
-* Multiple contacts or locations can be stored under a member account
-* Attach labels to contacts under a member account
-* Billing with [Stripe](http://stripe.com) or [Paypal](https://paypal.com)
-* One-page checkout reduces checkout abandonment
-* Members can manage their billing, deals and profile online
-* Financial dashboard charts your financial health
-* Export membership and financial data to a spreadsheet
-* Export invoices, payments and fees to QuickBooks
-* Group email members
-* Custom fields
-* Customize signup and account manage forms
-* Enterprise grade security & triple redundancy
+* Group memberships for families, businesses or organizations
+* Collect membership subscriptions and dues with [Stripe](http://stripe.com) or [Paypal](https://paypal.com)
+* Multiple billing options for each membership level - including automatic recurring billing, online billing, pay by check and lifetime billing
+* Setup tax rates for membership by city, state, zip or country
+* Automatically send upcoming renewal and past-due notices to members, customized for each membership level
+* Members can manage their membership billing and profile from your website
+* Financial dashboard charts your membership, donation, event and tax revenue
+* Export membership data, payments, invoices, and fees to QuickBooks or a spreadsheet
+* Bulk email members
+* Custom fields and customizable membership forms
 
-= Event System =
+= Restrict Access for Members =
 
-* Infinitely scrolling calendar promotes discovery and reduces friction
-* Color coded events on calendar
+* Restrict access to members only on any page or post with a shortcode
+* Restrict access by membership level or label
+
+= Event Calendar =
+
+* Infinitely scrolling event calendar promotes discovery and reduces friction
+* Event list view
+* Color coded events on event calendar
 * Event categories
-* Collect payments on-page through [Stripe](http://stripe.com) or [Paypal](https://paypal.com)
-* One-page event registration reduces checkout abandonment
-* Automatic event registration confirmation email with iCalendar attachment (works with Outlook, gmail, etc)
-* Create customized registration questions
-* Create multiple tickets
-* Create free tickets
-* Limit ticket and/or event capacity
-* Limit tickets per registration
-* Customize confirmation email
-* Registration notification emails
-* Group email event attendees with updates
-* Cancel and refund a single registration, or the entire event
-* Edit registrations and issue partial refunds
-* Download registration information to a spreadsheet
-* Export event invoices, payments and fees to QuickBooks
-* Check-in attendees
-* Registration and check-in updates member Timeline if email matches a member
-* Share and email events
+* Allow members to add or edit events with layered permissions
 * SEO optimized with Rich Snippets
 * Upcoming events widget
 
-= Directory =
+= Event Ticketing and Registration =
+
+* Pay for event tickets on-page through [Stripe](http://stripe.com) or [Paypal](https://paypal.com)
+* Automatic event registration confirmation email with iCalendar attachment let attendees add your event to their calendars (works with Outlook, gmail, etc)
+* Create custom event registration questions
+* Create multiple event tickets
+* Create free or paid event tickets
+* Setup tax rates for events by city, state, zip or country, override tax settings by event or ticket
+* Limit event ticket quantity, event capacity, event tickets per registration, and more
+* Member only event tickets
+* Email event attendees with updates
+* Cancel and refund a single event registration, or the entire event
+* Edit event registrations and issue partial refunds
+* Export registration information, event invoices, event payments and fees to QuickBooks or a spreadsheet
+* Event registration and event check-in updates membership Timeline for members
+
+= Member Directory and Deals =
 
 * Smart keyword search delivers more relevant search results
-* Search by area or by labels/categories
-* Interactive map view
+* Search directory by area or by labels/categories
+* Interactive map view for directory
+* Multiple locations for a business or organization
 * Business card motif allows your members to express their identity
-* Rich member profiles with logos, pictures, map, social media links and more
+* Rich, customizable member profiles with logos, pictures, map, social media links and more
 * Create member deals or offers
 * Comply with CAN-SPAM act and protect member emails from spam with our messaging system
 * Generate leads with user recommendations
-* Share and email member profiles
-* Customize profile template
 * SEO optimized with Rich Snippets
 * Member slideshow widget
-* Deals page
+
+...and more (too many features to list)!
 
 == Installation ==
 
 1. Install the MemberFindMe plugin via the WordPress.org plugin directory or upload it to your plugins directory.
 1. Activate the plugin
-1. Under 'Settings' -> 'MemberFindMe', enter your MemberFindMe organization key
+1. Sign in with your MemberFindMe account
+1. Create pages for your membership sign up form, member sign-in form, member directory, member deals page, event calendar using our shortcodes
+1. Create your membership levels, and setup Stripe or Paypal for membership billing
+1. Setup your membership and event tax rates as needed
+1. Import your members with a csv file
+1. To restrict access to pages or posts for members, also install the MemberFindMe Login Connector plugin
+1. For help, videos and documentation, see the Help section in the plugin
 
 == Frequently Asked Questions ==
 
-= Can I use this plugin without a MemberFindMe subscription? =
+= Can I use this plugin without a MemberFindMe account? =
 
-This plugin requires a MemberFindMe subscription. Please visit [MemberFindMe](http://memberfind.me/) for more information.
+This plugin is an interface to the MemberFindMe service, so a MemberFindMe account is required. Please visit [MemberFindMe](http://memberfind.me/) for more information.
 
-= Shortcodes =
+= How do I setup the membership sign-up form, member sign-in form, directory, deals, event calendar? =
 
-* Member directory: \[memberfindme open="!directory"\]
-* Member directory with map: \[memberfindme open="!directory/map"\]
-* Deals page: \[memberfindme open="!deals"\]
-* Event calendar: \[memberfindme open="!calendar"\]
-* Event list: \[memberfindme open="!event-list"\]
-* New member signup: \[memberfindme open="account/join"\]
-* Member account manage: \[memberfindme open="account/manage"\]
+Create pages and use the corresponding shortcode on the page. For the most up-to-date list of shortcodes please refer to the plugin help section under MemberFindMe > Help > Plugin > MemberFindMe widgets & shortcodes.
+
+The membership forms and directory profiles are pre-setup with a good default. You can further customize the form and profile templates under MemberFindMe > Customization.
+
+= Can I customize the colors in the membership forms, events, etc? =
+
+Information about customizing css can be found in the plugin under MemberFindMe > Help > Customization > CSS and colors
+
+= Can I use Paypal Standard for membership billing? =
+
+No, at this time MemberFindMe requires Paypal Pro in order to interface directly with Paypal, in order to track fees and payments in the Timeline, generate membership invoices and financial data, issue refunds, and more.
+
+If you do not have Paypal Pro and do not want to deal with the fees, we recommend using Stripe.
+
+= Can I restrict access to a page or post by membership level? =
+
+Yes you can restrict access by membership level or label, use the shortcode [memberonly label="..."]
+
+Note that the MemberFindMe Login Connector plugin is required.
+
+= Can I create event tickets restricted to a membership level? =
+
+Yes you can restrict event tickets to specific membership levels and/or labels.
+
+= What automated membership or event emails are generated by the system? =
+
+MemberFindMe can generate the following automated emails to your members:
+
+* Upcoming membership renewal 
+* Past-due membership
+* New member welcome
+* Membership payment receipts
+* Membership payment failure for automatic recurring billing (eg. expired credit card)
+
+MemberFindMe generates the following automated emails to your event attendees:
+
+* Event registration confirmation with iCalendar attachment
+* Event payment receipt
+
+MemberFindMe can also generates the following automated emails to you as the administrator:
+
+* New member signup
+* Member signup failure due to billing error (eg. invalid credit card)
+* Event registration
+* Email delivery bounce or failure for receipts, bulk emails, welcome email, and more
+
+= Can I email my members directly from the system? =
+
+You can email any group of members directly from the system, including:
+
+* Individual member or individual contact under member account
+* Members who signed-up in any date range
+* Members who renewed in any date range
+* Members with upcoming membership renewals for any date range
+* Members with past-due memberships for any date range
+* Members with a specific membership level
+* Members with a specific label
+* Members in any folder
+* Members pulled up with a keyword search
+
+Within any group you can also individually remove a member from the email. You can also include all contacts stored under a member account in the email.
+
+= How do I create categories for my directory? =
+
+You can enable membership levels or labels as categories for the directory, simply by enabling the option to make them searchable in the directory.
+
+= Can I create multiple directory pages, or create custom directories? =
+
+You can create custom directory pages or custom actions on a directory page, that corresponds to a search by area, by label or membership level, or by keyword, or any combination of.
+
+For more information, please refer to MemberFindMe > Help > Customization > Members Directory
 
 == Screenshots ==
 
 1. Member profiles.
 2. Event calendar.
-3. Member Timeline (CRM).
-4. Dashboard - Stream.
-5. Dashboard - Financial.
-6. Interactive directory map.
-7. Deals page.
+3. Membership Timeline (CRM).
+4. Membership metrics, signups, renewals and event registrations.
+5. Chart membership and event revenue.
+6. Interactive member directory map.
+7. Member deals.
 
 == Changelog ==
 
