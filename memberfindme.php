@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: MemberFindMe Membership, Events and Directory System
+Plugin Name: MemberFindMe Membership, Event & Directory System
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.8.2
+Version: 1.8.3
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -137,8 +137,9 @@ function sf_scripts() {
 }
 add_action('wp_enqueue_scripts','sf_scripts');
 
-function sf_title($ttl,$sep,$loc) {
+function sf_title() {
 	global $post,$sf_dat;
+	$arg=func_get_args();
 	$set=get_option('sf_set');
 	$mat=array();
 	$mfm=preg_match('/([^\[]\[memberfindme|^\[memberfindme)\sopen=\"!([^\"]*)/',$post->post_content,$mat);
@@ -148,7 +149,7 @@ function sf_title($ttl,$sep,$loc) {
 	}
 	if ($mfm&&(isset($_GET['_escaped_fragment_'])||preg_match("/googlebot|slurp|msnbot|facebook/i",$_SERVER['HTTP_USER_AGENT'])>0)) {
 		if (!isset($set['org'])||!$set['org'])
-			return $ttl;
+			return empty($arg)?'':$arg[0];
 		if (isset($_GET['_escaped_fragment_'])) {
 			$pne=$_GET['_escaped_fragment_'];
 			remove_action('wp_head','jetpack_og_tags');
@@ -167,18 +168,23 @@ function sf_title($ttl,$sep,$loc) {
 		} else if (isset($mat[2]))
 			$pne=$mat[2];
 		else
-			return $ttl;
+			return empty($arg)?'':$arg[0];
 		do {
 			if (empty($try)) $try=0; else usleep(100000);
 			$rsp=wp_remote_get("http://www.sourcefound.com/api?hdr&dtl&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($pne));
 		} while (is_wp_error($rsp)&&($try++)<3);
-		if (is_wp_error($rsp)||empty($rsp['body'])) return $ttl;
+		if (is_wp_error($rsp)||empty($rsp['body'])) 
+			return empty($arg)?'':$arg[0];
 		$sf_dat=json_decode($rsp['body'],true);
 		$sf_dat['set']=$set;
-		if (!isset($sf_dat['ttl'])||!$sf_dat['ttl']) return $ttl;
-		return ($loc=='left'?($ttl." $sep "):'').$sf_dat['ttl'].($loc=='right'?(" $sep ".$ttl):'');
+		if (!isset($sf_dat['ttl'])||!$sf_dat['ttl']) 
+			return empty($arg)?'':$arg[0];
+		if (!empty($arg)&&!empty($arg[2]))
+			return ($arg[2]=='left'?($arg[0].' '.(empty($arg[1])?'':($arg[1].' '))):'').$sf_dat['ttl'].($arg[2]=='right'?((empty($arg[1])?'':(' '.$arg[1])).' '.$arg[0]):'');
+		else
+			return $sf_dat['ttl'];
 	} else 
-		return $ttl;
+		return empty($arg)?'':$arg[0];
 }
 add_filter('wp_title','sf_title',20,3);
 
@@ -241,8 +247,9 @@ function sf_shortcode($content) {
 					.(empty($set['ctc'])?'':(' data-ctc="1"'))
 					.(empty($set['scl'])&&empty($opt['noshare'])?'':(' data-scl="0"'))
 					.(empty($set['wpl'])?(defined('SF_WPL')?' data-wpl="'.esc_url(preg_replace('/^http[s]?:\\/\\/[^\\/]*/','',site_url('wp-login.php','login_post'))).'"':''):(' data-wpl="'.esc_url($set['wpl']).'"'))
-					.(empty($opt['lbl'])?'':(' data-lbl="'.$opt['lbl'].'"'))
-					.(isset($opt['evg'])?(' data-evg="'.$opt['evg'].'"'):'')
+					.(empty($opt['lbl'])&&empty($opt['labels'])?'':(' data-lbl="'.esc_attr(empty($opt['lbl'])?$opt['labels']:$opt['lbl']).'"'))
+					.(empty($opt['folder'])?'':(' data-dek="'.esc_attr($opt['folder']).'"'))
+					.(isset($opt['evg'])?(' data-evg="'.esc_attr($opt['evg']).'"'):'')
 					.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
 					.(isset($opt['redirect'])?(' data-zzz="'.$opt['redirect'].'"'):'')
 					.' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'

@@ -4,7 +4,7 @@ Donate link: http://memberfind.me
 Tags: memberfindme, event calendar, event tickets, directory, membership management, subscription, billing, stripe, paypal, quickbooks
 Requires at least: 3.0
 Tested up to: 3.8.1
-Stable tag: 1.8.2
+Stable tag: 1.8.3
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,13 +14,13 @@ All-in-one membership and subscription management, event calendar and ticketing,
 
 [MemberFindMe](http://memberfind.me/) is a all-in-one membership management, subscription management, event calendar, event ticketing, and member directory solution for chambers of commerce, professional groups, associations and other membership groups.
 
-This plugin integrates MemberFindMe membership, event and directory system to your Wordpress site. MemberFindMe account is required (free for under 50 members).
+This plugin integrates MemberFindMe membership, event and directory system to your Wordpress site. MemberFindMe account required; MemberFindMe is free for small groups and also free to try with our 50 member/account plan.
 
 = Membership and Subscription Management =
 
 * Dashboard lets you to see membership metrics, member signups, member renewals, expired memberships, and event sales in one place
 * Labels lets you find members by committees, categories and more
-* Member Timeline (CRM) allows you to see a member's history at a glance
+* Member Timeline \(CRM\) allows you to see a member's history at a glance
 * Group memberships for families, businesses or organizations
 * Collect membership subscriptions and dues with [Stripe](http://stripe.com) or [Paypal](https://paypal.com)
 * Multiple billing options for each membership level - including automatic recurring billing, online billing, pay by check and lifetime billing
@@ -50,7 +50,7 @@ This plugin integrates MemberFindMe membership, event and directory system to yo
 = Event Ticketing and Registration =
 
 * Pay for event tickets on-page through [Stripe](http://stripe.com) or [Paypal](https://paypal.com)
-* Automatic event registration confirmation email with iCalendar attachment let attendees add your event to their calendars (works with Outlook, gmail, etc)
+* Automatic event registration confirmation email with iCalendar attachment let attendees add your event to their calendars \(works with Outlook, gmail, etc\)
 * Create custom event registration questions
 * Create multiple event tickets
 * Create free or paid event tickets
@@ -77,7 +77,7 @@ This plugin integrates MemberFindMe membership, event and directory system to yo
 * SEO optimized with Rich Snippets
 * Member slideshow widget
 
-...and more (too many features to list)!
+...and much more\!
 
 == Installation ==
 
@@ -115,7 +115,7 @@ If you do not have Paypal Pro and do not want to deal with the fees, we recommen
 
 = Can I restrict access to a page or post by membership level? =
 
-Yes you can restrict access by membership level or label, use the shortcode [memberonly label="..."]
+Yes you can restrict access by membership level or label, use the shortcode \[memberonly label="..."\]
 
 Note that the MemberFindMe Login Connector plugin is required.
 
@@ -131,17 +131,17 @@ MemberFindMe can generate the following automated emails to your members:
 * Past-due membership
 * New member welcome
 * Membership payment receipts
-* Membership payment failure for automatic recurring billing (eg. expired credit card)
+* Membership payment failure for automatic recurring billing \(eg. expired credit card\)
 
 MemberFindMe generates the following automated emails to your event attendees:
 
 * Event registration confirmation with iCalendar attachment
 * Event payment receipt
 
-MemberFindMe can also generates the following automated emails to you as the administrator:
+MemberFindMe also generates the following automated emails to you as the administrator:
 
 * New member signup
-* Member signup failure due to billing error (eg. invalid credit card)
+* Member signup failure due to billing error \(eg. invalid credit card\)
 * Event registration
 * Email delivery bounce or failure for receipts, bulk emails, welcome email, and more
 
@@ -175,7 +175,7 @@ For more information, please refer to MemberFindMe > Help > Customization > Memb
 
 1. Member profiles.
 2. Event calendar.
-3. Membership Timeline (CRM).
+3. Membership Timeline \(CRM\).
 4. Membership metrics, signups, renewals and event registrations.
 5. Chart membership and event revenue.
 6. Interactive member directory map.
@@ -222,10 +222,14 @@ For more information, please refer to MemberFindMe > Help > Customization > Memb
 
 = 1.8 =
 * Adds listevents shortcode
-* Adds ability redirect to another page after signing in (from account manage screen)
+* Adds ability redirect to another page after signing in \(from account manage screen\)
 
 = 1.8.1 =
 * Fixes minor bug with member slideshow widget
 
 = 1.8.2 =
 * Fix for members slideshow widget for themes that do not set ID on widget
+
+= 1.8.3 =
+* Fix for page titles on themes that do not provide correct number of parameters
+* Adds support for directories by folder
