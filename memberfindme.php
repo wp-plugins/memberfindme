@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe Membership, Event & Directory System
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 1.8.3
+Version: 2.0
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -35,9 +35,10 @@ function sf_admin_menu() {
 	add_submenu_page('sf_admin_page','Folders','Folders','add_users','sf_admin_folders','sf_admin_page');
 	add_submenu_page('sf_admin_page','Event List','Event List','add_users','sf_admin_event-list','sf_admin_page');
 	add_submenu_page('sf_admin_page','Event Calendar','Event Calendar','add_users','sf_admin_calendar','sf_admin_page');
-	add_submenu_page('sf_admin_page','Help','Help','add_users','sf_admin_help','sf_admin_page');
+	add_submenu_page('sf_admin_page','Forms Carts Donations','Forms Carts Donations','add_users','sf_admin_forms','sf_admin_page');
 	add_submenu_page('sf_admin_page','Customization','Customization','add_users','sf_admin_custom','sf_admin_page');
-	add_submenu_page('sf_admin_page','Account Settings','Account Settings','add_users','sf_admin_account','sf_admin_page');
+	add_submenu_page('sf_admin_page','Help','Help','add_users','sf_admin_help','sf_admin_page');
+	add_submenu_page('sf_admin_page','Organization Settings','Organization Settings','add_users','sf_admin_account','sf_admin_page');
 	add_submenu_page('sf_admin_page','Plugin Settings','Plugin Settings','add_users','sf_admin_options','sf_admin_options');
 }
 
@@ -69,7 +70,7 @@ function sf_admin_options() {
 		.'<tr valign="top"><th scope="row">Disable social share buttons</th><td><input type="checkbox" name="sf_set[scl]"'.(empty($set['scl'])?'':' checked="1"').' /></td></tr>'
 		.'<tr valign="top"><th scope="row">Load js/css inline</th><td><input type="checkbox" name="sf_set[htm]"'.(empty($set['htm'])?'':' checked="1"').' /></td></tr>'
 		.'</table>'
-		.(empty($set['wpl'])?'':('<input type="hidden" name="sf_set[wpl]" value="'.$set['wpl'].'" />'))
+		//.(empty($set['wpl'])?'':('<input type="hidden" name="sf_set[wpl]" value="'.$set['wpl'].'" />'))
 		.'<p class="submit"><input type="submit" name="submit" id="submit" class="button-primary" value="Save Changes"></p>'
 		.'</form></div>';
 }
@@ -97,12 +98,13 @@ function sf_admin_page() {
 		case 'folders':		$ini='folders'; $hme='folders'; break;
 		case 'event-list':	$ini='!event-list'; $hme='!event-list'; break;
 		case 'calendar':	$ini='!calendar'; $hme='!calendar'; break;
-		case 'help':		$ini='!help'; $hme='!help'; break;
+		case 'forms':		$ini='forms'; $hme='forms'; break;
 		case 'custom':		$ini='custom'; $hme='custom'; break;
+		case 'help':		$ini='!help'; $hme='!help'; break;
 		case 'account': 	$ini='account/manage'; $hme='account'; break;
 		default:			$ini='dashboard'; $hme='dashboard'; break;
 	}
-	echo '<div id="SFctr" class="SF" data-org="10000" data-hme="'.$hme.'" data-ini="'.$ini.'" data-typ="org" data-wpo="options.php" style="position:relative;padding:30px 20px 20px;"></div>'
+	echo '<div id="SFctr" class="SF" data-org="10000" data-hme="'.$hme.'" data-ini="'.$ini.'"'.(empty($set)||empty($set['map'])?'':(' data-map="'.$set['map'].'"')).' data-typ="org" data-wpo="options.php" style="position:relative;padding:30px 20px 20px;"></div>'
 		.'<script>function sf_admin(){'
 			.'var t=document.getElementById("toplevel_page_sf_admin_page");'
 			.'if (!t) return;'
@@ -117,6 +119,7 @@ function sf_admin_page() {
 				.'else if (x=="folders"){n.parentNode.id="SFhdrdek";n.href="#folders";}'
 				.'else if (x=="event-list"){n.parentNode.id="SFhdrevl";n.href="#!event-list";}'
 				.'else if (x=="calendar"){n.parentNode.id="SFhdrevc";n.href="#!calendar";}'
+				.'else if (x=="forms"){n.parentNode.id="SFhdrfrm";n.href="#forms";}'
 				.'else if (x=="help"){n.parentNode.id="SFhdrhlp";n.href="#help";}'
 				.'else if (x=="custom"){n.parentNode.id="SFhdrtpl";n.href="#custom";}'
 				.'else if (x=="account"){n.parentNode.id="SFhdracc";n.href="#account";}'
@@ -240,6 +243,7 @@ function sf_shortcode($content) {
 					.(strpos($opt['open'],'account')===0?'':(' data-hme="'.$opt['open'].'"'))
 					.(empty($set['org'])?'':(' data-org="'.$set['org'].'"'))
 					.(empty($set['pay'])?'':(' data-pay="'.$set['pay'].'"'))
+					.(empty($set['map'])?'':(' data-map="'.$set['map'].'"'))
 					.(empty($set['fbk'])?'':(' data-fbk="'.$set['fbk'].'"'))
 					.(empty($set['fnd'])?'':(' data-fnd="'.$set['fnd'].'"'))
 					.(isset($set['adv'])?(' data-adv="'.$set['adv'].'"'):'')
@@ -252,6 +256,7 @@ function sf_shortcode($content) {
 					.(isset($opt['evg'])?(' data-evg="'.esc_attr($opt['evg']).'"'):'')
 					.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
 					.(isset($opt['redirect'])?(' data-zzz="'.$opt['redirect'].'"'):'')
+					.(isset($opt['checkout'])?(' data-zgo="'.$opt['checkout'].'"'):'')
 					.' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
 					.'<div id="SFpne" style="position:relative;">'.(isset($opt['ini'])&&$opt['ini']=='0'?'':'<div class="SFpne">Loading...</div>').'</div>'
 					.'<div style="clear:both;"></div>'

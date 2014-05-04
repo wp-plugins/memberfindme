@@ -3,12 +3,12 @@ Contributors: sourcefound
 Donate link: http://memberfind.me
 Tags: memberfindme, event calendar, event tickets, directory, membership management, subscription, billing, stripe, paypal, quickbooks
 Requires at least: 3.0
-Tested up to: 3.8.1
-Stable tag: 1.8.3
+Tested up to: 3.9
+Stable tag: 2.0
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-All-in-one membership and subscription management, event calendar and ticketing, and member directory system for membership groups and organizations.
+All-in-one membership and subscription management, event calendar, event ticketing, shopping cart, donations and member directory system for membership groups and organizations.
 
 == Description ==
 
@@ -76,6 +76,23 @@ This plugin integrates MemberFindMe membership, event and directory system to yo
 * Generate leads with user recommendations
 * SEO optimized with Rich Snippets
 * Member slideshow widget
+
+= Forms, Shopping Cart and Donations =
+
+* Create forms for committee or volunteer signup, contact forms, and more
+* Sell items 
+* Collect fixed or flexible donations
+* Combine shopping cart and donations on one form
+* One page checkout for higher conversions
+* Create custom questions for each item
+* Setup item quantities and checkout limits
+* Setup tax rates by city, state, zip or country, override tax settings by form or by item
+* Create custom email receipts by form, item or donation
+* Automated notifications by item, donation or form
+* Log form activity to membership Timelines
+* Setup actions to add or remove labels, or create new accounts in specific folders
+* Combine shopping cart, form actions and member only access to sell access to online content
+* Track donations and item sales for financial analysis or for export to QuickBooks or spreadsheet
 
 ...and much more\!
 
@@ -233,3 +250,7 @@ For more information, please refer to MemberFindMe > Help > Customization > Memb
 = 1.8.3 =
 * Fix for page titles on themes that do not provide correct number of parameters
 * Adds support for directories by folder
+
+= 2.0 =
+* Adds support for Member Sign in and redirect to page
+* Adds forms, shopping cart and donations feature
