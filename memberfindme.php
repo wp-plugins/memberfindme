@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe Membership, Event & Directory System
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 2.0
+Version: 2.1
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -144,15 +144,22 @@ function sf_title() {
 	global $post,$sf_dat;
 	$arg=func_get_args();
 	$set=get_option('sf_set');
-	$mat=array();
-	$mfm=preg_match('/([^\[]\[memberfindme|^\[memberfindme)\sopen=\"!([^\"]*)/',$post->post_content,$mat);
-	if ($mfm&&empty($set['htm'])) {
+	for ($i=0,$mat=array();($x=strpos($post->post_content,'[memberfindme open=',$i))!==false;$i=$x+1) {
+		$y=strpos($post->post_content,']',$x);
+		if ((!$x||substr($post->post_content,$x-1,1)!='[')&&$y!==false) break; // not escaped shortcode and shortcode is closed
+	}
+	if ($x!==false&&empty($set['htm'])) {
 		wp_register_style('sf-css','//mfm-sourcefoundinc.netdna-ssl.com/all.css');
 		wp_enqueue_style('sf-css');
 	}
-	if ($mfm&&(isset($_GET['_escaped_fragment_'])||preg_match("/googlebot|slurp|msnbot|facebook/i",$_SERVER['HTTP_USER_AGENT'])>0)) {
+	if ($x!==false&&(isset($_GET['_escaped_fragment_'])||preg_match("/googlebot|slurp|msnbot|facebook/i",$_SERVER['HTTP_USER_AGENT'])>0)) {
 		if (!isset($set['org'])||!$set['org'])
 			return empty($arg)?'':$arg[0];
+		$mat=array();
+		$opt=array();
+		if (preg_match_all('/\s([a-z]*)(="[^"]*")?/',substr($post->post_content,$x+1,$y-$x-1),$mat,PREG_PATTERN_ORDER)!==false) {
+			foreach ($mat[1] as $key=>$val) $opt[$val]=empty($mat[2][$key])?'':substr($mat[2][$key],2,-1);
+		}
 		if (isset($_GET['_escaped_fragment_'])) {
 			$pne=$_GET['_escaped_fragment_'];
 			remove_action('wp_head','jetpack_og_tags');
@@ -168,13 +175,20 @@ function sf_title() {
 			remove_action('wp_head','start_post_rel_link');
 			remove_action('wp_head','adjacent_posts_rel_link_wp_head');
 			add_action('wp_head','sf_head',0);
-		} else if (isset($mat[2]))
-			$pne=$mat[2];
-		else
+		} else if (!empty($opt['open'])) {
+			$pne=$opt['open'];
+		} else {
 			return empty($arg)?'':$arg[0];
+		}
 		do {
 			if (empty($try)) $try=0; else usleep(100000);
-			$rsp=wp_remote_get("http://www.sourcefound.com/api?hdr&dtl&org=".$set['org']."&url=".urlencode(get_permalink())."&pne=".urlencode($pne));
+			$rsp=wp_remote_get("http://www.sourcefound.com/api?hdr&dtl&org=".$set['org']
+				."&url=".urlencode(get_permalink())
+				."&pne=".urlencode($pne)
+				.(empty($set['ctc'])?'':('&ctc=1'))
+				.(empty($opt['lbl'])&&empty($opt['labels'])?'':('&lbl='.(empty($opt['lbl'])?$opt['labels']:$opt['lbl'])))
+				.(empty($opt['folder'])?'':"&dek=".urlencode($opt['folder']))
+				.(empty($opt['evg'])?'':('&evg="'.$opt['evg'])));
 		} while (is_wp_error($rsp)&&($try++)<3);
 		if (is_wp_error($rsp)||empty($rsp['body'])) 
 			return empty($arg)?'':$arg[0];
@@ -344,7 +358,7 @@ class sf_widget_event extends WP_Widget {
 			$te=explode(',',$x['ezp']);
 			$ts=explode(',',$x['szp']);
 			if (isset($x['ezp'])&&$x['ezp']&&$te[0]==$ts[0]) $x['ezp']='- '.trim($te[1]);
-			echo '<li><a href="'.$x['url'].'">'.esc_html($x['ttl']).'</a><div class="event-when"><span class="event-start">'.$x['szp'].'</span>'.(isset($x['ezp'])&&$x['ezp']?('<span class="event-end">'.$x['ezp'].'</span>'):'').'</div></li>';
+			echo '<li><a href="'.$x['url'].'">'.$x['ttl'].'</a><div class="event-when"><span class="event-start">'.$x['szp'].'</span>'.(isset($x['ezp'])&&$x['ezp']?('<span class="event-end">'.$x['ezp'].'</span>'):'').'</div></li>';
 		}
 		echo '</ul>';
 		echo $after_widget;
@@ -398,7 +412,7 @@ class sf_widget_folder extends WP_Widget {
 					.($x['lgo']?('<img src="//usr-sourcefoundinc.netdna-ssl.com/'.$x['_id'].'_lgl.jpg?'.$x['lgo'].'" alt="'.esc_attr($x['nam']).'" onerror="this.parentNode.innerHTML=this.alt;" style="display:block;margin:0 auto;max-width:100%;max-height:75px;">'):esc_html($x['nam']))
 					.'</div><small class="cnm" style="display:block;padding:10px;">'.esc_html($x['cnm']).'</small></a></li>';
 			else
-				echo '<li><a href="'.esc_attr($x['url']).'">'.esc_html($x['nam']).'</a><small class="cnm" style="display:block;">'.esc_html($x['cnm']).'</small></li>';
+				echo '<li><a href="'.esc_attr($x['url']).'">'.$x['nam'].'</a><small class="cnm" style="display:block;">'.esc_html($x['cnm']).'</small></li>';
 		}
 		echo '</ul>';
 		if ($instance['act']=='1'&&isset($x)&&$x) {

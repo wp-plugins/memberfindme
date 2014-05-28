@@ -254,3 +254,7 @@ For more information, please refer to MemberFindMe > Help > Customization > Memb
 = 2.0 =
 * Adds support for Member Sign in and redirect to page
 * Adds forms, shopping cart and donations feature
+
+= 2.1 =
+* Fixes escaped html in event and member widgets
+* Search engine support for directories by folder
