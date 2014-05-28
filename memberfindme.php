@@ -188,7 +188,7 @@ function sf_title() {
 				.(empty($set['ctc'])?'':('&ctc=1'))
 				.(empty($opt['lbl'])&&empty($opt['labels'])?'':('&lbl='.(empty($opt['lbl'])?$opt['labels']:$opt['lbl'])))
 				.(empty($opt['folder'])?'':"&dek=".urlencode($opt['folder']))
-				.(empty($opt['evg'])?'':('&evg="'.$opt['evg'])));
+				.(isset($opt['evg'])?('&evg='.$opt['evg']):''));
 		} while (is_wp_error($rsp)&&($try++)<3);
 		if (is_wp_error($rsp)||empty($rsp['body'])) 
 			return empty($arg)?'':$arg[0];
