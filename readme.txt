@@ -3,7 +3,7 @@ Contributors: sourcefound
 Donate link: http://memberfind.me
 Tags: memberfindme, event calendar, event tickets, directory, membership management, subscription, billing, stripe, paypal, quickbooks
 Requires at least: 3.0
-Tested up to: 3.9
+Tested up to: 3.9.1
 Stable tag: 2.0
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -258,3 +258,7 @@ For more information, please refer to MemberFindMe > Help > Customization > Memb
 = 2.1 =
 * Fixes escaped html in event and member widgets
 * Search engine support for directories by folder
+
+= 2.1.1 =
+* Adds separator between dates in event widget and event list shortcode
+* Minor bug fixes

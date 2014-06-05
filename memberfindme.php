@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe Membership, Event & Directory System
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 2.1
+Version: 2.1.1
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -239,7 +239,8 @@ function sf_shortcode($content) {
 		$y=strpos($content,']',$x);
 		if (($x>0&&substr($content,$x-1,1)=='[')||$y===false) continue; // escaped shortcode or shortcode not closed
 		$mat=array();
-		if (!preg_match_all('/\s([a-z]*)(="[^"]*")?/',substr($content,$x+1,$y-$x-1),$mat,PREG_PATTERN_ORDER)) continue;
+		if (!preg_match_all('/\s([a-z]*)(="[^"]*")?/',substr($content,$x+1,$y-$x-1),$mat,PREG_PATTERN_ORDER)||empty($mat)||empty($mat[1])) 
+			continue;
 		$opt=array();
 		foreach ($mat[1] as $key=>$val) $opt[$val]=empty($mat[2][$key])?'':substr($mat[2][$key],2,-1);
 		// create output
@@ -306,7 +307,7 @@ function sf_shortcode($content) {
 			} else {
 				$dat=json_decode($rsp['body'],true);
 				$out=array();
-				foreach ($dat as $usr)
+				if (!empty($dat)) foreach ($dat as $usr)
 					$out[]='<li><a href="'.esc_attr($usr['url']).'">'.esc_html($usr['nam']).'</a></li>';
 				$out='<ul class="sf_list">'.implode('',$out).'</ul>';
 			}
@@ -320,11 +321,11 @@ function sf_shortcode($content) {
 			} else {
 				$dat=json_decode($rsp['body'],true);
 				$out=array();
-				foreach ($dat as $evt) {
+				if (!empty($dat)) foreach ($dat as $evt) {
 					$te=explode(',',$evt['ezp']);
 					$ts=explode(',',$evt['szp']);
-					if (!empty($evt['ezp'])&&$te[0]==$ts[0]) $evt['ezp']='- '.trim($te[1]);
-					$out[]='<li><a href="'.$evt['url'].'">'.esc_html($evt['ttl']).'</a><div class="event-when"><span class="event-start">'.$evt['szp'].'</span>'.(isset($evt['ezp'])&&$evt['ezp']?('<span class="event-end">'.$evt['ezp'].'</span>'):'').'</div></li>';
+					if (!empty($evt['ezp'])&&$te[0]==$ts[0]) $evt['ezp']=trim($te[1]);
+					$out[]='<li><a href="'.$evt['url'].'">'.esc_html($evt['ttl']).'</a><div class="event-when"><span class="event-start">'.$evt['szp'].'</span>'.(isset($evt['ezp'])&&$evt['ezp']?('<span class="event-sep"> - </span><span class="event-end">'.$evt['ezp'].'</span>'):'').'</div></li>';
 				}
 				$out='<ul class="sf_list">'.implode('',$out).'</ul>';
 			}
@@ -354,11 +355,11 @@ class sf_widget_event extends WP_Widget {
 		if (!empty($title))
 			echo $before_title.$title.$after_title;
 		echo '<ul>';
-		foreach ($dat as $x) {
+		if (!empty($dat)) foreach ($dat as $x) {
 			$te=explode(',',$x['ezp']);
 			$ts=explode(',',$x['szp']);
-			if (isset($x['ezp'])&&$x['ezp']&&$te[0]==$ts[0]) $x['ezp']='- '.trim($te[1]);
-			echo '<li><a href="'.$x['url'].'">'.$x['ttl'].'</a><div class="event-when"><span class="event-start">'.$x['szp'].'</span>'.(isset($x['ezp'])&&$x['ezp']?('<span class="event-end">'.$x['ezp'].'</span>'):'').'</div></li>';
+			if (isset($x['ezp'])&&$x['ezp']&&$te[0]==$ts[0]) $x['ezp']=trim($te[1]);
+			echo '<li><a href="'.$x['url'].'">'.$x['ttl'].'</a><div class="event-when"><span class="event-start">'.$x['szp'].'</span>'.(isset($x['ezp'])&&$x['ezp']?('<span class="event-sep"> - </span><span class="event-end">'.$x['ezp'].'</span>'):'').'</div></li>';
 		}
 		echo '</ul>';
 		echo $after_widget;
@@ -406,7 +407,7 @@ class sf_widget_folder extends WP_Widget {
 			echo '<ul id="'.$this->id.'-list" class="sf_widget_folder_logos" style="list-style:none;margin:0;padding:5px;">';
 		} else
 			echo '<ul id="'.$this->id.'-list" class="sf_widget_folder_list">';
-		foreach ($dat as $x) {
+		if (!empty($dat)) foreach ($dat as $x) {
 			if ($instance['act']=='1')
 				echo '<li style="display:none;background-color:white;text-align:center;height:148px;padding:0;margin:0;table-layout:fixed;width:100%;"><a href="'.esc_attr($x['url']).'" style="display:table-cell;vertical-align:middle;padding:10px;text-decoration:none;"><div style="display:block;width:100%;font-size:1.5em;">'
 					.($x['lgo']?('<img src="//usr-sourcefoundinc.netdna-ssl.com/'.$x['_id'].'_lgl.jpg?'.$x['lgo'].'" alt="'.esc_attr($x['nam']).'" onerror="this.parentNode.innerHTML=this.alt;" style="display:block;margin:0 auto;max-width:100%;max-height:75px;">'):esc_html($x['nam']))
@@ -415,10 +416,10 @@ class sf_widget_folder extends WP_Widget {
 				echo '<li><a href="'.esc_attr($x['url']).'">'.$x['nam'].'</a><small class="cnm" style="display:block;">'.esc_html($x['cnm']).'</small></li>';
 		}
 		echo '</ul>';
-		if ($instance['act']=='1'&&isset($x)&&$x) {
+		if ($instance['act']=='1'&&!empty($x)) {
 			$delay=intval($instance['delay'])*1000;
 			echo '<script>'
-				.$fn.'_animate=function(){var r=document.getElementById("'.$this->id.'-list"),x=r.querySelector(\'li[style*="table;"]\');if (x) {x.style.display="none";x=(x.nextSibling?x.nextSibling:r.firstChild);} else x=r.childNodes[Math.round(Math.random()*r.childNodes.length)];if (x) x.style.display="table";setTimeout('.$fn.'_animate,'.($delay?$delay:10000).');};'
+				.$fn.'_animate=function(){var r=document.getElementById("'.$this->id.'-list"),x=r.querySelector(\'li[style*="table;"]\');if (x) {x.style.display="none";x=(x.nextSibling?x.nextSibling:r.firstChild);} else x=r.childNodes[Math.round(Math.random()*(r.childNodes.length-1))];if (x) x.style.display="table";setTimeout('.$fn.'_animate,'.($delay?$delay:10000).');};'
 				.$fn.'_animate();'
 				.'</script>';
 		}
