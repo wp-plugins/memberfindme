@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe Membership, Event & Directory System
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 2.1.1
+Version: 2.2
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -69,6 +69,7 @@ function sf_admin_options() {
 		.'<tr valign="top"><th scope="row">Customize text for directory group email button</th><td><input type="text" name="sf_set[rsp]" placeholder="disabled" value="'.(isset($set['rsp'])?$set['rsp']:'').'" /></td></tr>'
 		.'<tr valign="top"><th scope="row">Disable social share buttons</th><td><input type="checkbox" name="sf_set[scl]"'.(empty($set['scl'])?'':' checked="1"').' /></td></tr>'
 		.'<tr valign="top"><th scope="row">Load js/css inline</th><td><input type="checkbox" name="sf_set[htm]"'.(empty($set['htm'])?'':' checked="1"').' /></td></tr>'
+		.'<tr valign="top"><th scope="row">URL redirect upon signing out</th><td><input type="text" name="sf_set[out]" value="'.(empty($set['out'])?'':$set['out']).'" /></td></tr>'
 		.'</table>'
 		//.(empty($set['wpl'])?'':('<input type="hidden" name="sf_set[wpl]" value="'.$set['wpl'].'" />'))
 		.'<p class="submit"><input type="submit" name="submit" id="submit" class="button-primary" value="Save Changes"></p>'
@@ -135,10 +136,13 @@ function sf_admin_page() {
 }
 
 function sf_scripts() {
-	wp_register_script('sf-mfm','//mfm-sourcefoundinc.netdna-ssl.com/mfi.js',array(),null);
-	wp_register_script('sf-mfn','//mfm-sourcefoundinc.netdna-ssl.com/mfm.js',array(),null);
+	wp_register_script('sf-mfm','//mfm-sourcefoundinc.netdna-ssl.com/mfm.js',array(),null);
 }
 add_action('wp_enqueue_scripts','sf_scripts');
+
+function sf_false() {
+	return false;
+}
 
 function sf_title() {
 	global $post,$sf_dat;
@@ -265,6 +269,7 @@ function sf_shortcode($content) {
 					.(empty($set['rsp'])?'':(' data-rsp="'.$set['rsp'].'"'))
 					.(empty($set['ctc'])?'':(' data-ctc="1"'))
 					.(empty($set['scl'])&&empty($opt['noshare'])?'':(' data-scl="0"'))
+					.(empty($set['out'])?'':(' data-out="'.$set['out'].'"'))
 					.(empty($set['wpl'])?(defined('SF_WPL')?' data-wpl="'.esc_url(preg_replace('/^http[s]?:\\/\\/[^\\/]*/','',site_url('wp-login.php','login_post'))).'"':''):(' data-wpl="'.esc_url($set['wpl']).'"'))
 					.(empty($opt['lbl'])&&empty($opt['labels'])?'':(' data-lbl="'.esc_attr(empty($opt['lbl'])?$opt['labels']:$opt['lbl']).'"'))
 					.(empty($opt['folder'])?'':(' data-dek="'.esc_attr($opt['folder']).'"'))
@@ -272,13 +277,14 @@ function sf_shortcode($content) {
 					.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
 					.(isset($opt['redirect'])?(' data-zzz="'.$opt['redirect'].'"'):'')
 					.(isset($opt['checkout'])?(' data-zgo="'.$opt['checkout'].'"'):'')
+					.(isset($opt['ini'])&&$opt['ini']=='0'?'':' data-sfi="1"')
 					.' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
 					.'<div id="SFpne" style="position:relative;">'.(isset($opt['ini'])&&$opt['ini']=='0'?'':'<div class="SFpne">Loading...</div>').'</div>'
 					.'<div style="clear:both;"></div>'
-					.(empty($set['htm'])?'':'<script type="text/javascript" src="//mfm-sourcefoundinc.netdna-ssl.com/'.(isset($opt['ini'])&&$opt['ini']=='0'?'mfm':'mfi').'.js" defer="defer"></script>')
+					.(empty($set['htm'])?'':'<script type="text/javascript" src="//mfm-sourcefoundinc.netdna-ssl.com/mfm.js" defer="defer"></script>')
 					.'</div>';
 				if (empty($set['htm']))
-					wp_enqueue_script(isset($opt['ini'])&&$opt['ini']=='0'?'sf-mfn':'sf-mfm');
+					wp_enqueue_script('sf-mfm');
 			}
 			$mfm=true;
 		} else if (isset($opt['button'])) { 
@@ -286,15 +292,15 @@ function sf_shortcode($content) {
 				.(isset($opt['type'])&&$opt['type']=='img'&&isset($opt['src'])?(' src="'.$opt['src'].'"'):'')
 				.(isset($opt['class'])?(' class="'.$opt['class'].'"'):'')
 				.(isset($opt['style'])?(' style="'.$opt['style'].'"'):' style="cursor:pointer;"')
-				.($opt['button']=='account'?(' onmouseout="if (SF) SF.usr.account(event,this);" onmouseover="if (SF) SF.usr.account(event,this);" onclick="if (SF) SF.usr.account(event,this);">'.(isset($opt['text'])?$opt['text']:'My Account')):'')
-				.($opt['button']=='join'?(' onclick="if (SF) SF.open(\'account/join\');">'.(isset($opt['text'])?$opt['text']:'Join')):'')
+				.($opt['button']=='account'?(' onmouseout="if(typeof(SF)!=\'undefined\')SF.usr.account(event,this);" onmouseover="if(typeof(SF)!=\'undefined\')SF.usr.account(event,this);" onclick="if(typeof(SF)!=\'undefined\')SF.usr.account(event,this);">'.(isset($opt['text'])?$opt['text']:'My Account')):'')
+				.($opt['button']=='join'?(' onclick="if(typeof(SF)!=\'undefined\')SF.open(\'account/join\');">'.(isset($opt['text'])?$opt['text']:'Join')):'')
 				.(isset($opt['type'])?($opt['type']=='img'?'':('</'.$opt['type'].'>')):'</button>');
 		} else if (isset($opt['join'])) {
 			$out=(isset($opt['type'])?('<'.$opt['type']):'<a')
 				.(isset($opt['type'])&&$opt['type']=='img'&&isset($opt['src'])?(' src="'.$opt['src'].'"'):'')
 				.(isset($opt['class'])?(' class="'.$opt['class'].'"'):'')
 				.(isset($opt['style'])?(' style="'.$opt['style'].'"'):' style="cursor:pointer;"')
-				.(isset($opt['type'])&&$opt['type']!='a'?(' onclick="window.location.hash=\'account/join/'.$opt['join'].'\';SF.init();">'):(' onclick="SF.init(true)" href="#account/join/'.$opt['join'].'">'))
+				.(isset($opt['type'])&&$opt['type']!='a'?(' onclick="window.location.hash=\'account/join/'.$opt['join'].'\';if(typeof(SF)!=\'undefined\')setTimeout(\'SF.init()\',50);">'):(' onclick="if(typeof(SF)!=\'undefined\')setTimeout(\'SF.init()\',50)" href="#account/join/'.$opt['join'].'">'))
 				.(isset($opt['text'])?$opt['text']:'Join')
 				.(isset($opt['type'])?($opt['type']=='img'?'':('</'.$opt['type'].'>')):'</a>');
 		} else if (isset($opt['listlabel'])||isset($opt['listfolder'])) {
@@ -333,6 +339,8 @@ function sf_shortcode($content) {
 			$out='';
 		$content=substr_replace($content,$out,$x,$y-$x+1);
 	}
+	if ($mfm)
+		define('DONOTCACHEPAGE',true);
 	return $content;
 }
 add_filter('the_content','sf_shortcode',99);
