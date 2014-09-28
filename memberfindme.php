@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe Membership, Event & Directory System
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 2.2
+Version: 3.0
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -70,6 +70,7 @@ function sf_admin_options() {
 		.'<tr valign="top"><th scope="row">Disable social share buttons</th><td><input type="checkbox" name="sf_set[scl]"'.(empty($set['scl'])?'':' checked="1"').' /></td></tr>'
 		.'<tr valign="top"><th scope="row">Load js/css inline</th><td><input type="checkbox" name="sf_set[htm]"'.(empty($set['htm'])?'':' checked="1"').' /></td></tr>'
 		.'<tr valign="top"><th scope="row">URL redirect upon signing out</th><td><input type="text" name="sf_set[out]" value="'.(empty($set['out'])?'':$set['out']).'" /></td></tr>'
+		.'<tr valign="top"><th scope="row">Page top offset (pixels)</th><td><input type="text" name="sf_set[top]" value="'.(empty($set['top'])?'':$set['top']).'" /></td></tr>'
 		.'</table>'
 		//.(empty($set['wpl'])?'':('<input type="hidden" name="sf_set[wpl]" value="'.$set['wpl'].'" />'))
 		.'<p class="submit"><input type="submit" name="submit" id="submit" class="button-primary" value="Save Changes"></p>'
@@ -270,7 +271,8 @@ function sf_shortcode($content) {
 					.(empty($set['ctc'])?'':(' data-ctc="1"'))
 					.(empty($set['scl'])&&empty($opt['noshare'])?'':(' data-scl="0"'))
 					.(empty($set['out'])?'':(' data-out="'.$set['out'].'"'))
-					.(empty($set['wpl'])?(defined('SF_WPL')?' data-wpl="'.esc_url(preg_replace('/^http[s]?:\\/\\/[^\\/]*/','',site_url('wp-login.php','login_post'))).'"':''):(' data-wpl="'.esc_url($set['wpl']).'"'))
+					.(empty($set['top'])?'':(' data-top="'.$set['top'].'"'))
+					.(empty($set['wpl'])?(defined('SF_WPL')?' data-wpl="'.esc_url(preg_replace('/^http[s]?:\\/\\/[^\\/]*/','',(SF_WPL>=3?esc_url(admin_url('admin-ajax.php')):site_url('wp-login.php','login_post')))).'"':''):(' data-wpl="'.esc_url($set['wpl']).'"'))
 					.(empty($opt['lbl'])&&empty($opt['labels'])?'':(' data-lbl="'.esc_attr(empty($opt['lbl'])?$opt['labels']:$opt['lbl']).'"'))
 					.(empty($opt['folder'])?'':(' data-dek="'.esc_attr($opt['folder']).'"'))
 					.(isset($opt['evg'])?(' data-evg="'.esc_attr($opt['evg']).'"'):'')
@@ -362,12 +364,12 @@ class sf_widget_event extends WP_Widget {
 		echo $before_widget;
 		if (!empty($title))
 			echo $before_title.$title.$after_title;
-		echo '<ul>';
+		echo '<ul class="sf_widget_event_list">';
 		if (!empty($dat)) foreach ($dat as $x) {
 			$te=explode(',',$x['ezp']);
 			$ts=explode(',',$x['szp']);
 			if (isset($x['ezp'])&&$x['ezp']&&$te[0]==$ts[0]) $x['ezp']=trim($te[1]);
-			echo '<li><a href="'.$x['url'].'">'.$x['ttl'].'</a><div class="event-when"><span class="event-start">'.$x['szp'].'</span>'.(isset($x['ezp'])&&$x['ezp']?('<span class="event-sep"> - </span><span class="event-end">'.$x['ezp'].'</span>'):'').'</div></li>';
+			echo '<li class="event-item"><a class="event-link" href="'.$x['url'].'">'.$x['ttl'].'</a><div class="event-when"><span class="event-start">'.$x['szp'].'</span>'.(isset($x['ezp'])&&$x['ezp']?('<span class="event-sep"> - </span><span class="event-end">'.$x['ezp'].'</span>'):'').'</div></li>';
 		}
 		echo '</ul>';
 		echo $after_widget;
