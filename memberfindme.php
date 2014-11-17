@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe Membership, Event & Directory System
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 3.0
+Version: 3.0.1
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -215,23 +215,23 @@ function sf_head() {
 	if ($sf_dat) {
 		$out=array();
 		if (isset($sf_dat['sum'])) 
-			$out[]='<meta name="description" content="'.str_replace('"','&quot;',$sf_dat['sum']).'"/>';
+			$out[]='<meta name="description" content="'.str_replace('"','&quot;',$sf_dat['sum']).'" />';
 		if (isset($sf_dat['ttl'])) {
-			$out[]='<meta property="og:site_name" content="'.str_replace('"','&quot;',get_bloginfo('name')).'"/>';
-			$out[]='<meta property="og:title" content="'.str_replace('"','&quot;',$sf_dat['ttl']).'"/>';
+			$out[]='<meta property="og:site_name" content="'.str_replace('"','&quot;',get_bloginfo('name')).'" />';
+			$out[]='<meta property="og:title" content="'.str_replace('"','&quot;',$sf_dat['ttl']).'" />';
 		}
-		if (isset($sf_dat['sum'])) 
-			$out[]='<meta property="og:description" content="'.str_replace('"','&quot;',$sf_dat['sum']).'"/>';
 		if (isset($sf_dat['img'])) 
-			$out[]='<meta property="og:image" content="'.$sf_dat['img'].'"/>';
+			$out[]='<meta property="og:image" content="'.$sf_dat['img'].'" />';
+		if (isset($sf_dat['sum'])) 
+			$out[]='<meta property="og:description" content="'.str_replace('"','&quot;',$sf_dat['sum']).'" />';
 		if (isset($_GET['_escaped_fragment_'])&&isset($sf_dat['rel'])) {
-			$out[]='<meta property="og:url" content="'.$sf_dat['rel'].'"/>';
-			$out[]='<link rel="canonical" href="'.$sf_dat['rel'].'"/>';
+			$out[]='<meta property="og:url" content="'.$sf_dat['rel'].'" />';
+			$out[]='<link rel="canonical" href="'.$sf_dat['rel'].'" />';
 		}
 		if (isset($sf_dat['nxt'])) 
-			$out[]='<link rel="next" href="'.$sf_dat['nxt'].'"/>';
+			$out[]='<link rel="next" href="'.$sf_dat['nxt'].'" />';
 		if (isset($sf_dat['prv'])) 
-			$out[]='<link rel="prev" href="'.$sf_dat['prv'].'"/>';
+			$out[]='<link rel="prev" href="'.$sf_dat['prv'].'" />';
 		echo implode("\r\n",$out).(count($out)?"\r\n":'');
 	}
 }
@@ -272,7 +272,7 @@ function sf_shortcode($content) {
 					.(empty($set['scl'])&&empty($opt['noshare'])?'':(' data-scl="0"'))
 					.(empty($set['out'])?'':(' data-out="'.$set['out'].'"'))
 					.(empty($set['top'])?'':(' data-top="'.$set['top'].'"'))
-					.(empty($set['wpl'])?(defined('SF_WPL')?' data-wpl="'.esc_url(preg_replace('/^http[s]?:\\/\\/[^\\/]*/','',(SF_WPL>=3?esc_url(admin_url('admin-ajax.php')):site_url('wp-login.php','login_post')))).'"':''):(' data-wpl="'.esc_url($set['wpl']).'"'))
+					.(defined('SF_WPL')?(' data-wpl="'.esc_url(preg_replace('/^http[s]?:\\/\\/[^\\/]*/','',SF_WPL>=3?admin_url('admin-ajax.php'):site_url('wp-login.php','login_post'))).'"'):(empty($set['wpl'])?'':(' data-wpl="'.esc_url($set['wpl']).'"')))
 					.(empty($opt['lbl'])&&empty($opt['labels'])?'':(' data-lbl="'.esc_attr(empty($opt['lbl'])?$opt['labels']:$opt['lbl']).'"'))
 					.(empty($opt['folder'])?'':(' data-dek="'.esc_attr($opt['folder']).'"'))
 					.(isset($opt['evg'])?(' data-evg="'.esc_attr($opt['evg']).'"'):'')

@@ -2,7 +2,7 @@
 Contributors: sourcefound
 Donate link: http://memberfind.me
 Tags: memberfindme, event calendar, event tickets, directory, membership management, subscription, billing, stripe, paypal, quickbooks
-Requires at least: 3.0
+Requires at least: 3.0.1
 Tested up to: 4.0
 Stable tag: 3.0
 License: GPL2
@@ -298,3 +298,6 @@ For more information, please refer to MemberFindMe > Help > Customization > Memb
 = 3.0 =
 * Adds page top offset setting for themes with fixed menu bars
 * Supports improved WordPress user synchronization with MemberFindMe Login Connector
+
+= 3.0.1 =
+* Fixes compatibility with older MemberFindMe Login Connector version
