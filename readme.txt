@@ -4,7 +4,7 @@ Donate link: http://memberfind.me
 Tags: memberfindme, event calendar, event tickets, directory, membership management, subscription, billing, stripe, paypal, quickbooks
 Requires at least: 3.0.2
 Tested up to: 4.0.1
-Stable tag: 3.0.2
+Stable tag: 3.1
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -303,4 +303,7 @@ For more information, please refer to MemberFindMe > Help > Customization > Memb
 * Fixes compatibility with older MemberFindMe Login Connector version
 
 = 3.0.2 =
+* Fixes compatibility with WordPress 4.0.1
+
+= 3.1 =
 * Fixes compatibility with WordPress 4.0.1
