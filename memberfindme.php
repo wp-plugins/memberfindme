@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe Membership, Event & Directory System
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 3.1
+Version: 3.2
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -244,10 +244,10 @@ function sf_shortcode($content) {
 		$y=strpos($content,']',$x);
 		if (($x>0&&substr($content,$x-1,1)=='[')||$y===false) continue; // escaped shortcode or shortcode not closed
 		$mat=array();
-		if (!preg_match_all('/\s([a-z]*)(="[^"]*")?/',str_replace(array('&#8221;','&#8243;','&quot;','&ldquo;','&rdquo;'),'"',substr($content,$x+1,$y-$x-1)),$mat,PREG_PATTERN_ORDER)||empty($mat)||empty($mat[1])) 
+		if (!preg_match_all('/\s([a-z]*)(=("|&[^;]*;)+.*?("|&[^;]*;))?/',substr($content,$x+1,$y-$x-1),$mat,PREG_PATTERN_ORDER)||empty($mat)||empty($mat[1])) 
 			continue;
 		$opt=array();
-		foreach ($mat[1] as $key=>$val) $opt[$val]=empty($mat[2][$key])?'':substr($mat[2][$key],2,-1);
+		foreach ($mat[1] as $key=>$val) $opt[$val]=empty($mat[2][$key])?'':trim(preg_replace('/^=("|&[^;]*;)*|("|&[^;]*;)$/','',$mat[2][$key]));
 		// create output
 		if ($set===false||empty($set['org'])) {
 			$out=(isset($opt['open'])&&!$mfm?'<div>MemberFindMe organization key not setup. Please update settings.</div>':'');
