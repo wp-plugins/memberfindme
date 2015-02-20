@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe Membership, Event & Directory System
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 3.2
+Version: 3.3
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -341,7 +341,7 @@ function sf_shortcode($content) {
 			$out='';
 		$content=substr_replace($content,$out,$x,$y-$x+1);
 	}
-	if ($mfm)
+	if ($mfm&&!defined('DONOTCACHEPAGE'))
 		define('DONOTCACHEPAGE',true);
 	return $content;
 }
@@ -364,12 +364,19 @@ class sf_widget_event extends WP_Widget {
 		echo $before_widget;
 		if (!empty($title))
 			echo $before_title.$title.$after_title;
-		echo '<ul class="sf_widget_event_list">';
-		if (!empty($dat)) foreach ($dat as $x) {
-			$te=explode(',',$x['ezp']);
+		echo '<ul class="sf_widget_event_list" style="display:block;position:relative">';
+		if (empty($dat))
+			echo '<li class="event-item">No current events</li>';
+		else foreach ($dat as $x) {
 			$ts=explode(',',$x['szp']);
-			if (isset($x['ezp'])&&$x['ezp']&&$te[0]==$ts[0]) $x['ezp']=trim($te[1]);
-			echo '<li class="event-item"><a class="event-link" href="'.$x['url'].'">'.$x['ttl'].'</a><div class="event-when"><span class="event-start">'.$x['szp'].'</span>'.(isset($x['ezp'])&&$x['ezp']?('<span class="event-sep"> - </span><span class="event-end">'.$x['ezp'].'</span>'):'').'</div></li>';
+			if (!empty($x['ezp'])) {
+				$te=explode(',',$x['ezp']);
+				if ($te[0]==$ts[0]) $x['ezp']=trim($te[1]);
+			}
+			echo '<li class="event-item">'
+				.'<a class="event-link" href="'.$x['url'].'">'.(empty($x['lgo'])||empty($instance['lgo'])?'':('<img class="event-thumb" src=//evt-sourcefoundinc.netdna-ssl.com/'.$x['_id'].'s.jpg?'.$x['lgo'].' style="max-width:100%"/>')).$x['ttl'].'</a>'
+				.'<div class="event-when"><span class="event-start">'.$x['szp'].'</span>'.(isset($x['ezp'])&&$x['ezp']?('<span class="event-sep"> - </span><span class="event-end">'.$x['ezp'].'</span>'):'').'</div>'
+				.'</li>';
 		}
 		echo '</ul>';
 		echo $after_widget;
@@ -379,6 +386,10 @@ class sf_widget_event extends WP_Widget {
 		$instance['title']=strip_tags($new_instance['title']);
 		$instance['grp']=isset($new_instance['grp'])?$new_instance['grp']:'';
 		$instance['cnt']=$new_instance['cnt']?strval(intval($new_instance['cnt'])):'0';
+		if (empty($new_instance['lgo']))
+			unset($instance['lgo']);
+		else
+			$instance['lgo']=1;
 		return $instance;
 	}
 	public function form($instance) {
@@ -386,9 +397,10 @@ class sf_widget_event extends WP_Widget {
 		$title=strip_tags($instance['title']);
 		$grp=$instance['grp'];
 		$cnt=intval($instance['cnt']);
-		echo '<p><label for="'.$this->get_field_id('title').'">Title:</label> <input class="widefat" id="'.$this->get_field_id('title').'" name="'.$this->get_field_name('title').'" type="text" value="'.esc_attr($title).'" /></p>';
-		echo '<p><label for="'.$this->get_field_id('grp').'">Calendar group:</label> <input id="'.$this->get_field_id('grp').'" name="'.$this->get_field_name('grp').'" type="text" value="'.$grp.'" size="3"/></p>';
-		echo '<p><label for="'.$this->get_field_id('cnt').'">Number of events to show:</label> <input id="'.$this->get_field_id('cnt').'" name="'.$this->get_field_name('cnt').'" type="text" value="'.$cnt.'" size="3"/></p>';
+		echo '<p><label for="'.$this->get_field_id('title').'">Title:</label> <input class="widefat" id="'.$this->get_field_id('title').'" name="'.$this->get_field_name('title').'" type="text" value="'.esc_attr($title).'" /></p>'
+			.'<p><label for="'.$this->get_field_id('grp').'">Calendar group (blank=all):</label> <input id="'.$this->get_field_id('grp').'" name="'.$this->get_field_name('grp').'" type="text" value="'.$grp.'" size="3"/></p>'
+			.'<p><label for="'.$this->get_field_id('cnt').'">Number of events to show:</label> <input id="'.$this->get_field_id('cnt').'" name="'.$this->get_field_name('cnt').'" type="text" value="'.$cnt.'" size="3"/></p>'
+			.'<p><label for="'.$this->get_field_id('lgo').'">Display images:</label> <input id="'.$this->get_field_id('lgo').'" name="'.$this->get_field_name('lgo').'" type="checkbox" value="1"'.(empty($instance['lgo'])?'':' checked').'/></p>';
 	}
 }
 
