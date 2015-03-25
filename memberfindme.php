@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe Membership, Event & Directory System
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 3.3
+Version: 3.4
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -170,10 +170,14 @@ function sf_title() {
 			remove_action('wp_head','jetpack_og_tags');
 			if (defined('WPSEO_VERSION')) { // Yoast SEO
 				global $wpseo_front;
-				remove_action('wp_head',array($wpseo_front,'head'),1);
+				if (!empty($wpseo_front))
+					remove_action('wp_head',array($wpseo_front,'head'),1);
+				else if (class_exists('WPSEO_Frontend')&&method_exists(WPSEO_Frontend,'get_instance'))
+					remove_action('wp_head',array(WPSEO_Frontend::get_instance(),'head'),1);
 			} else if (defined('AIOSEOP_VERSION')) { // All in One SEO
 				global $aiosp;
-				remove_action('wp_head',array($aiosp,'wp_head'));
+				if (!empty($aiosp))
+					remove_action('wp_head',array($aiosp,'wp_head'),apply_filters('aioseop_wp_head_priority',1));
 			}
 			remove_action('wp_head','rel_canonical');
 			remove_action('wp_head','index_rel_link');
@@ -275,6 +279,7 @@ function sf_shortcode($content) {
 					.(defined('SF_WPL')?(' data-wpl="'.esc_url(preg_replace('/^http[s]?:\\/\\/[^\\/]*/','',SF_WPL>=3?admin_url('admin-ajax.php'):site_url('wp-login.php','login_post'))).'"'):(empty($set['wpl'])?'':(' data-wpl="'.esc_url($set['wpl']).'"')))
 					.(empty($opt['lbl'])&&empty($opt['labels'])?'':(' data-lbl="'.esc_attr(empty($opt['lbl'])?$opt['labels']:$opt['lbl']).'"'))
 					.(empty($opt['folder'])?'':(' data-dek="'.esc_attr($opt['folder']).'"'))
+					.(empty($opt['levels'])?'':(' data-lvl="'.esc_attr($opt['levels']).'"'))
 					.(isset($opt['evg'])?(' data-evg="'.esc_attr($opt['evg']).'"'):'')
 					.(isset($opt['viewport'])&&$opt['viewport']=='fixed'?(' data-ofy="1"'):'')
 					.(isset($opt['redirect'])?(' data-zzz="'.$opt['redirect'].'"'):'')
@@ -431,9 +436,10 @@ class sf_widget_folder extends WP_Widget {
 			echo '<ul id="'.$this->id.'-list" class="sf_widget_folder_list">';
 		if (!empty($dat)) foreach ($dat as $x) {
 			if ($instance['act']=='1')
-				echo '<li style="display:none;background-color:white;text-align:center;height:148px;padding:0;margin:0;table-layout:fixed;width:100%;"><a href="'.esc_attr($x['url']).'" style="display:table-cell;vertical-align:middle;padding:10px;text-decoration:none;"><div style="display:block;width:100%;font-size:1.5em;">'
-					.($x['lgo']?('<img src="//usr-sourcefoundinc.netdna-ssl.com/'.$x['_id'].'_lgl.jpg?'.$x['lgo'].'" alt="'.esc_attr($x['nam']).'" onerror="this.parentNode.innerHTML=this.alt;" style="display:block;margin:0 auto;max-width:100%;max-height:75px;">'):esc_html($x['nam']))
-					.'</div><small class="cnm" style="display:block;padding:10px;">'.esc_html($x['cnm']).'</small></a></li>';
+				echo '<li style="display:none;background-color:white;text-align:center;height:148px;padding:0;margin:0;table-layout:fixed;width:100%;"><a href="'.esc_attr($x['url']).'" style="display:table-cell;vertical-align:middle;padding:10px;text-decoration:none;">'
+					.($x['lgo']?('<div class="member-image"><img src="//usr-sourcefoundinc.netdna-ssl.com/'.$x['_id'].'_lgl.jpg?'.$x['lgo'].'" alt="'.esc_attr($x['nam']).'" onerror="this.parentNode.innerHTML=this.alt;" style="display:block;margin:0 auto;max-width:100%;max-height:75px;"></div>'):'')
+					.($x['lgo']&&empty($instance['nam'])?'':('<div class="member-name" style="display:block;width:100%;font-size:'.($x['lgo']?'1.1em':'1.5em').'">'.esc_html($x['nam']).'</div>'))
+					.'<small class="member-tagline" style="display:block;padding:10px;">'.esc_html($x['cnm']).'</small></a></li>';
 			else
 				echo '<li><a href="'.esc_attr($x['url']).'">'.$x['nam'].'</a><small class="cnm" style="display:block;">'.esc_html($x['cnm']).'</small></li>';
 		}
@@ -454,10 +460,14 @@ class sf_widget_folder extends WP_Widget {
 		$instance['typ']=strval(intval($new_instance['typ']));
 		$instance['act']=strval(intval($new_instance['act']));
 		$instance['delay']=strval(intval($new_instance['delay']));
+		if (empty($new_instance['nam']))
+			unset($instance['nam']);
+		else
+			$instance['nam']=1;
 		return $instance;
 	}
 	public function form($instance) {
-		$instance=wp_parse_args($instance,array('title'=>'','typ'=>'1','lbl'=>'','act'=>'0','delay'=>'10'));
+		$instance=wp_parse_args($instance,array('title'=>'','typ'=>'1','lbl'=>'','act'=>'0','delay'=>'10','nam'=>''));
 		$title=strip_tags($instance['title']);
 		echo '<p><label for="'.$this->get_field_id('title').'">Title:</label> <input class="widefat" id="'.$this->get_field_id('title').'" name="'.$this->get_field_name('title').'" type="text" value="'.esc_attr($title).'" /></p>'
 			.'<p><label for="'.$this->get_field_id('lbl').'">Folder/label name:</label> <input class="widefat" id="'.$this->get_field_id('lbl').'" name="'.$this->get_field_name('lbl').'" type="text" value="'.esc_attr($instance['lbl']).'" /></p>'
@@ -469,7 +479,10 @@ class sf_widget_folder extends WP_Widget {
 				.'<option value="0"'.($instance['act']=='0'?' selected="selected"':'').'>List</option>'
 				.'<option value="1"'.($instance['act']=='1'?' selected="selected"':'').'>Slideshow</option>'
 			.'</select></p>'
-			.'<p'.($instance['act']=='1'?'':' style="display:none;"').'><label for="'.$this->get_field_id('delay').'">Seconds between slides:</label> <input id="'.$this->get_field_id('delay').'" name="'.$this->get_field_name('delay').'" type="text" value="'.$instance['delay'].'" size="3"/></p>';
+			.'<div'.($instance['act']=='1'?'>':' style="display:none;">')
+				.'<p><label for="'.$this->get_field_id('delay').'">Seconds between slides:</label> <input id="'.$this->get_field_id('delay').'" name="'.$this->get_field_name('delay').'" type="text" value="'.$instance['delay'].'" size="3"/></p>'
+				.'<p><label for="'.$this->get_field_id('nam').'">Always display name:</label> <input id="'.$this->get_field_id('nam').'" name="'.$this->get_field_name('nam').'" type="checkbox" value="1"'.(empty($instance['nam'])?'':' checked').'/></p>'
+			.'</div>';
 	}
 }
 
