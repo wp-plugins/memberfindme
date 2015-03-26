@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe Membership, Event & Directory System
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 3.4
+Version: 3.5
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -127,7 +127,7 @@ function sf_admin_page() {
 				.'else if (x=="account"){n.parentNode.id="SFhdracc";n.href="#account";}'
 			.'}'
 		.'}sf_admin();</script>'
-		.'<script type="text/javascript" src="//mfm-sourcefoundinc.netdna-ssl.com/all.js"></script>'
+		.'<script type="text/javascript" src="//src.memberfind.me/all.js"></script>'
 		.'<script>SF.init();</script>';
 	if ($set===false||empty($set['org'])) {
 		echo '<form id="SFwpo" style="display:none" action="options.php" method="post">';
@@ -137,7 +137,7 @@ function sf_admin_page() {
 }
 
 function sf_scripts() {
-	wp_register_script('sf-mfm','//mfm-sourcefoundinc.netdna-ssl.com/mfm.js',array(),null);
+	wp_register_script('sf-mfm','//src.memberfind.me/mfm.js',array(),null);
 }
 add_action('wp_enqueue_scripts','sf_scripts');
 
@@ -154,7 +154,7 @@ function sf_title() {
 		if ((!$x||substr($post->post_content,$x-1,1)!='[')&&$y!==false) break; // not escaped shortcode and shortcode is closed
 	}
 	if ($x!==false&&empty($set['htm'])) {
-		wp_register_style('sf-css','//mfm-sourcefoundinc.netdna-ssl.com/all.css');
+		wp_register_style('sf-css','//src.memberfind.me/all.css');
 		wp_enqueue_style('sf-css');
 	}
 	if ($x!==false&&(isset($_GET['_escaped_fragment_'])||preg_match("/googlebot|slurp|msnbot|facebook/i",$_SERVER['HTTP_USER_AGENT'])>0)) {
@@ -288,7 +288,7 @@ function sf_shortcode($content) {
 					.' style="'.(isset($opt['style'])?$opt['style']:'position:relative;height:auto;').'">'
 					.'<div id="SFpne" style="position:relative;">'.(isset($opt['ini'])&&$opt['ini']=='0'?'':'<div class="SFpne">Loading...</div>').'</div>'
 					.'<div style="clear:both;"></div>'
-					.(empty($set['htm'])?'':'<script type="text/javascript" src="//mfm-sourcefoundinc.netdna-ssl.com/mfm.js" defer="defer"></script>')
+					.(empty($set['htm'])?'':'<script type="text/javascript" src="//src.memberfind.me/mfm.js" defer="defer"></script>')
 					.'</div>';
 				if (empty($set['htm']))
 					wp_enqueue_script('sf-mfm');
@@ -379,7 +379,7 @@ class sf_widget_event extends WP_Widget {
 				if ($te[0]==$ts[0]) $x['ezp']=trim($te[1]);
 			}
 			echo '<li class="event-item">'
-				.'<a class="event-link" href="'.$x['url'].'">'.(empty($x['lgo'])||empty($instance['lgo'])?'':('<img class="event-thumb" src=//evt-sourcefoundinc.netdna-ssl.com/'.$x['_id'].'s.jpg?'.$x['lgo'].' style="max-width:100%"/>')).$x['ttl'].'</a>'
+				.'<a class="event-link" href="'.$x['url'].'">'.(empty($x['lgo'])||empty($instance['lgo'])?'':('<img class="event-thumb" src=//d1tif55lvfk8gc.cloudfront.net/'.$x['_id'].'s.jpg?'.$x['lgo'].' style="max-width:100%"/>')).$x['ttl'].'</a>'
 				.'<div class="event-when"><span class="event-start">'.$x['szp'].'</span>'.(isset($x['ezp'])&&$x['ezp']?('<span class="event-sep"> - </span><span class="event-end">'.$x['ezp'].'</span>'):'').'</div>'
 				.'</li>';
 		}
@@ -437,7 +437,7 @@ class sf_widget_folder extends WP_Widget {
 		if (!empty($dat)) foreach ($dat as $x) {
 			if ($instance['act']=='1')
 				echo '<li style="display:none;background-color:white;text-align:center;height:148px;padding:0;margin:0;table-layout:fixed;width:100%;"><a href="'.esc_attr($x['url']).'" style="display:table-cell;vertical-align:middle;padding:10px;text-decoration:none;">'
-					.($x['lgo']?('<div class="member-image"><img src="//usr-sourcefoundinc.netdna-ssl.com/'.$x['_id'].'_lgl.jpg?'.$x['lgo'].'" alt="'.esc_attr($x['nam']).'" onerror="this.parentNode.innerHTML=this.alt;" style="display:block;margin:0 auto;max-width:100%;max-height:75px;"></div>'):'')
+					.($x['lgo']?('<div class="member-image"><img src="//d7efyznwb7ft3.cloudfront.net/'.$x['_id'].'_lgl.jpg?'.$x['lgo'].'" alt="'.esc_attr($x['nam']).'" onerror="this.parentNode.innerHTML=this.alt;" style="display:block;margin:0 auto;max-width:100%;max-height:75px;"></div>'):'')
 					.($x['lgo']&&empty($instance['nam'])?'':('<div class="member-name" style="display:block;width:100%;font-size:'.($x['lgo']?'1.1em':'1.5em').'">'.esc_html($x['nam']).'</div>'))
 					.'<small class="member-tagline" style="display:block;padding:10px;">'.esc_html($x['cnm']).'</small></a></li>';
 			else

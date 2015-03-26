@@ -4,7 +4,7 @@ Donate link: http://memberfind.me
 Tags: memberfindme, event calendar, event tickets, directory, membership management, subscription, billing, stripe, paypal, quickbooks
 Requires at least: 3.0.2
 Tested up to: 4.1.1
-Stable tag: 3.4
+Stable tag: 3.5
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -319,3 +319,6 @@ For more information, please refer to MemberFindMe > Help > Customization > Memb
 * Fixes compatibility with Yoast SEO 1.7.3 and up
 * Adds membership level filter for signup form
 * Adds option to always display name for member slideshow widget
+
+= 3.5 =
+* Updated resources to not load from MaxCDN, which may be blocked due to SpamHaus listing
