@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe Membership, Event & Directory System
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 3.5
+Version: 3.6
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -162,8 +162,8 @@ function sf_title() {
 			return empty($arg)?'':$arg[0];
 		$mat=array();
 		$opt=array();
-		if (preg_match_all('/\s([a-z]*)(="[^"]*")?/',substr($post->post_content,$x+1,$y-$x-1),$mat,PREG_PATTERN_ORDER)!==false) {
-			foreach ($mat[1] as $key=>$val) $opt[$val]=empty($mat[2][$key])?'':substr($mat[2][$key],2,-1);
+		if (preg_match_all('/\s([a-z\-]*)(=("|&[^;]*;)+.*?("|&[^;]*;))?/',substr($post->post_content,$x+1,$y-$x-1),$mat,PREG_PATTERN_ORDER)!==false) {
+			foreach ($mat[1] as $key=>$val) $opt[$val]=empty($mat[2][$key])?'':trim(preg_replace('/^=("|&[^;]*;)*|("|&[^;]*;)$/','',$mat[2][$key]));
 		}
 		if (isset($_GET['_escaped_fragment_'])) {
 			$pne=$_GET['_escaped_fragment_'];
@@ -248,7 +248,7 @@ function sf_shortcode($content) {
 		$y=strpos($content,']',$x);
 		if (($x>0&&substr($content,$x-1,1)=='[')||$y===false) continue; // escaped shortcode or shortcode not closed
 		$mat=array();
-		if (!preg_match_all('/\s([a-z]*)(=("|&[^;]*;)+.*?("|&[^;]*;))?/',substr($content,$x+1,$y-$x-1),$mat,PREG_PATTERN_ORDER)||empty($mat)||empty($mat[1])) 
+		if (!preg_match_all('/\s([a-z\-]*)(=("|&[^;]*;)+.*?("|&[^;]*;))?/',substr($content,$x+1,$y-$x-1),$mat,PREG_PATTERN_ORDER)||empty($mat)||empty($mat[1])) 
 			continue;
 		$opt=array();
 		foreach ($mat[1] as $key=>$val) $opt[$val]=empty($mat[2][$key])?'':trim(preg_replace('/^=("|&[^;]*;)*|("|&[^;]*;)$/','',$mat[2][$key]));
@@ -374,13 +374,21 @@ class sf_widget_event extends WP_Widget {
 			echo '<li class="event-item">No current events</li>';
 		else foreach ($dat as $x) {
 			$ts=explode(',',$x['szp']);
-			if (!empty($x['ezp'])) {
+			if (empty($instance['szp'])&&!empty($x['ezp'])) {
 				$te=explode(',',$x['ezp']);
 				if ($te[0]==$ts[0]) $x['ezp']=trim($te[1]);
 			}
 			echo '<li class="event-item">'
-				.'<a class="event-link" href="'.$x['url'].'">'.(empty($x['lgo'])||empty($instance['lgo'])?'':('<img class="event-thumb" src=//d1tif55lvfk8gc.cloudfront.net/'.$x['_id'].'s.jpg?'.$x['lgo'].' style="max-width:100%"/>')).$x['ttl'].'</a>'
-				.'<div class="event-when"><span class="event-start">'.$x['szp'].'</span>'.(isset($x['ezp'])&&$x['ezp']?('<span class="event-sep"> - </span><span class="event-end">'.$x['ezp'].'</span>'):'').'</div>'
+				.'<a class="event-link" href="'.$x['url'].'">'
+					.(empty($x['lgo'])||empty($instance['lgo'])?'':('<img class="event-thumb" src=//d1tif55lvfk8gc.cloudfront.net/'.$x['_id'].'s.jpg?'.$x['lgo'].' style="max-width:100%"/>'))
+					.$x['ttl']
+				.'</a>'
+				.(empty($instance['szp'])||(empty($instance['exp'])&&!empty($x['ezp']))?('<div class="event-when">'
+					.(empty($instance['szp'])?('<span class="event-start">'.$x['szp'].'</span>'):'')
+					.(empty($instance['szp'])&&empty($instance['ezp'])&&!empty($x['ezp'])?'<span class="event-sep"> - </span>':'')
+					.(empty($instance['ezp'])&&!empty($x['ezp'])?('<span class="event-end">'.$x['ezp'].'</span>'):'')
+				.'</div>'):'')
+				.(empty($instance['adn'])||empty($x['adn'])?'':('<div class="event-where">'.$x['adn'].'</div>'))
 				.'</li>';
 		}
 		echo '</ul>';
@@ -391,10 +399,10 @@ class sf_widget_event extends WP_Widget {
 		$instance['title']=strip_tags($new_instance['title']);
 		$instance['grp']=isset($new_instance['grp'])?$new_instance['grp']:'';
 		$instance['cnt']=$new_instance['cnt']?strval(intval($new_instance['cnt'])):'0';
-		if (empty($new_instance['lgo']))
-			unset($instance['lgo']);
-		else
-			$instance['lgo']=1;
+		if (empty($new_instance['lgo'])) unset($instance['lgo']); else $instance['lgo']=1;
+		if (empty($new_instance['adn'])) unset($instance['adn']); else $instance['adn']=1;
+		if (empty($new_instance['szp'])) $instance['szp']=1; else unset($instance['szp']);
+		if (empty($new_instance['ezp'])) $instance['ezp']=1; else unset($instance['ezp']);
 		return $instance;
 	}
 	public function form($instance) {
@@ -405,7 +413,10 @@ class sf_widget_event extends WP_Widget {
 		echo '<p><label for="'.$this->get_field_id('title').'">Title:</label> <input class="widefat" id="'.$this->get_field_id('title').'" name="'.$this->get_field_name('title').'" type="text" value="'.esc_attr($title).'" /></p>'
 			.'<p><label for="'.$this->get_field_id('grp').'">Calendar group (blank=all):</label> <input id="'.$this->get_field_id('grp').'" name="'.$this->get_field_name('grp').'" type="text" value="'.$grp.'" size="3"/></p>'
 			.'<p><label for="'.$this->get_field_id('cnt').'">Number of events to show:</label> <input id="'.$this->get_field_id('cnt').'" name="'.$this->get_field_name('cnt').'" type="text" value="'.$cnt.'" size="3"/></p>'
-			.'<p><label for="'.$this->get_field_id('lgo').'">Display images:</label> <input id="'.$this->get_field_id('lgo').'" name="'.$this->get_field_name('lgo').'" type="checkbox" value="1"'.(empty($instance['lgo'])?'':' checked').'/></p>';
+			.'<p><label for="'.$this->get_field_id('lgo').'">Display images:</label> <input id="'.$this->get_field_id('lgo').'" name="'.$this->get_field_name('lgo').'" type="checkbox" value="1"'.(empty($instance['lgo'])?'':' checked').'/></p>'
+			.'<p><label for="'.$this->get_field_id('adn').'">Display location:</label> <input id="'.$this->get_field_id('adn').'" name="'.$this->get_field_name('adn').'" type="checkbox" value="1"'.(empty($instance['adn'])?'':' checked').'/></p>'
+			.'<p><label for="'.$this->get_field_id('szp').'">Display start date/time:</label> <input id="'.$this->get_field_id('szp').'" name="'.$this->get_field_name('szp').'" type="checkbox" value="1"'.(empty($instance['szp'])?' checked':'').'/></p>'
+			.'<p><label for="'.$this->get_field_id('ezp').'">Display end date/time:</label> <input id="'.$this->get_field_id('ezp').'" name="'.$this->get_field_name('ezp').'" type="checkbox" value="1"'.(empty($instance['ezp'])?' checked':'').'/></p>';
 	}
 }
 
