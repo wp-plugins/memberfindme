@@ -3,8 +3,8 @@ Contributors: sourcefound
 Donate link: http://memberfind.me
 Tags: memberfindme, event calendar, event tickets, directory, membership management, subscription, billing, stripe, paypal, quickbooks
 Requires at least: 3.0.2
-Tested up to: 4.2.1
-Stable tag: 3.6
+Tested up to: 4.2.2
+Stable tag: 3.7
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -326,3 +326,6 @@ For more information, please refer to MemberFindMe > Help > Customization > Memb
 = 3.6 =
 * Fixes compatibility with WordPress 4.0.1 and up
 * Add options to enable or disable event date/times and location to event list widet
+
+= 3.7 =
+* Fixes missing title with Yoast SEO when force rewrite titles is enabled

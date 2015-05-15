@@ -3,7 +3,7 @@
 Plugin Name: MemberFindMe Membership, Event & Directory System
 Plugin URI: http://memberfind.me
 Description: MemberFindMe plugin
-Version: 3.6
+Version: 3.7
 Author: SourceFound
 Author URI: http://memberfind.me
 License: GPL2
@@ -29,7 +29,7 @@ global $sf_dat;
 $sf_dat=false;
 
 function sf_admin_menu() {
-	add_menu_page('MemberFindMe Admin','MemberFindMe','add_users','sf_admin_page','sf_admin_page','','2.1');
+	add_menu_page('MemberFindMe Admin','MemberFindMe','add_users','sf_admin_page','sf_admin_page','','2.99');
 	add_submenu_page('sf_admin_page','Members','Members','add_users','sf_admin_members','sf_admin_page');
 	add_submenu_page('sf_admin_page','Labels','Labels &amp; Membership','add_users','sf_admin_labels','sf_admin_page');
 	add_submenu_page('sf_admin_page','Folders','Folders','add_users','sf_admin_folders','sf_admin_page');
@@ -154,7 +154,7 @@ function sf_title() {
 		if ((!$x||substr($post->post_content,$x-1,1)!='[')&&$y!==false) break; // not escaped shortcode and shortcode is closed
 	}
 	if ($x!==false&&empty($set['htm'])) {
-		wp_register_style('sf-css','//src.memberfind.me/all.css');
+		wp_register_style('sf-css','//src.memberfind.me/all.css',array(),null);
 		wp_enqueue_style('sf-css');
 	}
 	if ($x!==false&&(isset($_GET['_escaped_fragment_'])||preg_match("/googlebot|slurp|msnbot|facebook/i",$_SERVER['HTTP_USER_AGENT'])>0)) {
@@ -171,9 +171,16 @@ function sf_title() {
 			if (defined('WPSEO_VERSION')) { // Yoast SEO
 				global $wpseo_front;
 				if (!empty($wpseo_front))
-					remove_action('wp_head',array($wpseo_front,'head'),1);
+					$tmp=$wpseo_front;
 				else if (class_exists('WPSEO_Frontend')&&method_exists(WPSEO_Frontend,'get_instance'))
-					remove_action('wp_head',array(WPSEO_Frontend::get_instance(),'head'),1);
+					$tmp=WPSEO_Frontend::get_instance();
+				else
+					$tmp=false;
+				if (!empty($tmp)) {
+					remove_action('wp_head',array($tmp,'head'),1);
+					if (method_exists($tmp,'flush_cache')&&remove_action('wp_footer',array($tmp,'flush_cache'),-1))
+						ob_end_flush();
+				}
 			} else if (defined('AIOSEOP_VERSION')) { // All in One SEO
 				global $aiosp;
 				if (!empty($aiosp))
